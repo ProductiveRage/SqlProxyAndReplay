@@ -78,16 +78,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public void Close() { ThrowIfDisposed(); _connection.Close(ConnectionId); }
 		public IDbCommand CreateCommand() { ThrowIfDisposed(); return new RemoteSqlCommandClient(_connection, _command, _transaction, _reader, _command.GetNewCommandId(ConnectionId)); }
 
-		public IDbTransaction BeginTransaction()
-		{
-			ThrowIfDisposed();
-			throw new NotImplementedException(); // TODO
-		}
-		public IDbTransaction BeginTransaction(IsolationLevel il)
-		{
-			ThrowIfDisposed();
-			throw new NotImplementedException(); // TODO
-		}
+		public IDbTransaction BeginTransaction() { ThrowIfDisposed(); return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, _connection.BeginTransaction(ConnectionId)); }
+		public IDbTransaction BeginTransaction(IsolationLevel il) { ThrowIfDisposed(); return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, _connection.BeginTransaction(ConnectionId, il)); }
 
 		private void ThrowIfDisposed()
 		{

@@ -45,17 +45,21 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 			{
 				using (var conn = connCreator.GetConnection(connectionString))
 				{
-					using (var cmd = conn.CreateCommand(sql))
+					conn.Open();
+					using (var transaction = conn.BeginTransaction())
 					{
-						conn.Open();
-						using (var rdr = cmd.ExecuteReader())
+						using (var cmd = conn.CreateCommand(sql))
 						{
-							Console.WriteLine("Raw SQL via proxy..");
-							while (rdr.Read())
+							cmd.Transaction = transaction;
+							using (var rdr = cmd.ExecuteReader())
 							{
-								Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
+								Console.WriteLine("Raw SQL via proxy..");
+								while (rdr.Read())
+								{
+									Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
+								}
+								Console.WriteLine();
 							}
-							Console.WriteLine();
 						}
 					}
 				}
@@ -65,11 +69,14 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 				using (var conn = connCreator.GetConnection(connectionString))
 				{
 					conn.Open();
-					Console.WriteLine("Dapper via proxy..");
-					var products = conn.Query<Product>(sql);
-					foreach (var product in products)
-						Console.WriteLine(product.ProductName);
-					Console.WriteLine();
+					using (var transaction = conn.BeginTransaction())
+					{
+						Console.WriteLine("Dapper via proxy..");
+						var products = conn.Query<Product>(sql, transaction: transaction);
+						foreach (var product in products)
+							Console.WriteLine(product.ProductName);
+						Console.WriteLine();
+					}
 				}
 			}
 			Console.WriteLine("Press [Enter] to terminate..");
