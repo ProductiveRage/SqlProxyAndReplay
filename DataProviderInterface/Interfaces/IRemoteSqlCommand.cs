@@ -9,28 +9,28 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlCommand
 	{
 		[OperationContract]
-		Guid GetNewCommandId(ConnectionId connectionId);
+		CommandId GetNewCommandId(ConnectionId connectionId);
 
 		[OperationContract]
-		string GetCommandText(Guid commandId);
+		string GetCommandText(CommandId commandId);
 
 		[OperationContract]
-		void SetCommandText(Guid commandId, string value);
+		void SetCommandText(CommandId commandId, string value);
 
 		[OperationContract]
-		int GetCommandTimeout(Guid commandId);
+		int GetCommandTimeout(CommandId commandId);
 		[OperationContract]
-		void SetCommandTimeout(Guid commandId, int value);
+		void SetCommandTimeout(CommandId commandId, int value);
 
 		[OperationContract]
-		CommandType GetCommandType(Guid commandId);
+		CommandType GetCommandType(CommandId commandId);
 		[OperationContract]
-		void SetCommandType(Guid commandId, CommandType value);
+		void SetCommandType(CommandId commandId, CommandType value);
 
 		[OperationContract(Name = "GetCommandConnection")]
-		ConnectionId GetConnection(Guid commandId);
+		ConnectionId GetConnection(CommandId commandId);
 		[OperationContract(Name = "SetCommandConnection")]
-		void SetConnection(Guid commandId, ConnectionId optionalConnectionId);
+		void SetConnection(CommandId commandId, ConnectionId optionalConnectionId);
 
 		/* TODO
 		[OperationContract]
@@ -40,26 +40,26 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		*/
 
 		[OperationContract]
-		Guid? GetTransaction(Guid commandId);
+		TransactionId GetTransaction(CommandId commandId);
 		[OperationContract]
-		void SetTransaction(Guid commandId, Guid? transactionId);
+		void SetTransaction(CommandId commandId, TransactionId optionalTransactionId);
 		[OperationContract]
-		UpdateRowSource GetUpdatedRowSource(Guid commandId);
+		UpdateRowSource GetUpdatedRowSource(CommandId commandId);
 		[OperationContract]
-		void SetUpdatedRowSource(Guid commandId, UpdateRowSource value);
+		void SetUpdatedRowSource(CommandId commandId, UpdateRowSource value);
 
 		[OperationContract]
-		void Prepare(Guid commandId);
+		void Prepare(CommandId commandId);
 		[OperationContract]
-		void Cancel(Guid commandId);
+		void Cancel(CommandId commandId);
 		[OperationContract(Name = "DisposeCommand")]
-		void Dispose(Guid commandId);
+		void Dispose(CommandId commandId);
 
 		[OperationContract]
-		int ExecuteNonQuery(Guid commandId);
+		int ExecuteNonQuery(CommandId commandId);
 		[OperationContract]
-		object ExecuteScalar(Guid commandId);
+		object ExecuteScalar(CommandId commandId);
 		[OperationContract]
-		Guid ExecuteReader(Guid commandId, CommandBehavior behavior = CommandBehavior.Default);
+		DataReaderId ExecuteReader(CommandId commandId, CommandBehavior behavior = CommandBehavior.Default);
 	}
 }

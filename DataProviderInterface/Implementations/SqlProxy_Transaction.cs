@@ -7,25 +7,25 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public ConnectionId GetConnection(Guid transactionId)
+		public ConnectionId GetConnection(TransactionId transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
 
-		public IsolationLevel GetIsolationLevel(Guid transactionId)
+		public IsolationLevel GetIsolationLevel(TransactionId transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
 
-		public void Commit(Guid transactionId)
+		public void Commit(TransactionId transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-		public void Rollback(Guid transactionId)
+		public void Rollback(TransactionId transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-		public void Dispose(Guid transactionId)
+		public void Dispose(TransactionId transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}

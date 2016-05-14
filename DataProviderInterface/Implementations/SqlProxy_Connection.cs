@@ -26,7 +26,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_connectionStore.Remove(connectionId);
 		}
 
-		public Guid BeginTransaction(ConnectionId connectionId)
+		public TransactionId BeginTransaction(ConnectionId connectionId)
 		{
 			var transaction = _connectionStore.Get(connectionId).BeginTransaction();
 			try
@@ -39,7 +39,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw;
 			}
 		}
-		public Guid BeginTransaction(ConnectionId connectionId, IsolationLevel il)
+		public TransactionId BeginTransaction(ConnectionId connectionId, IsolationLevel il)
 		{
 			var transaction = _connectionStore.Get(connectionId).BeginTransaction(il);
 			try

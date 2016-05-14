@@ -10,14 +10,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		static DefaultStores()
 		{
 			ConnectionStore = new Store<ConnectionId, SqlConnection>(() => new ConnectionId(Guid.NewGuid()));
-			CommandStore = new Store<Guid, IDbCommand>(() => Guid.NewGuid());
-			TransactionStore = new Store<Guid, IDbTransaction>(() => Guid.NewGuid());
-			ReaderStore = new Store<Guid, IDataReader>(() => Guid.NewGuid());
+			CommandStore = new Store<CommandId, IDbCommand>(() => new CommandId(Guid.NewGuid()));
+			TransactionStore = new Store<TransactionId, IDbTransaction>(() => new TransactionId(Guid.NewGuid()));
+			ReaderStore = new Store<DataReaderId, IDataReader>(() => new DataReaderId(Guid.NewGuid()));
 		}
 
 		public static Store<ConnectionId, SqlConnection> ConnectionStore { get; }
-		public static Store<Guid, IDbCommand> CommandStore { get; }
-		public static Store<Guid, IDbTransaction> TransactionStore { get; }
-		public static Store<Guid, IDataReader> ReaderStore { get; }
+		public static Store<CommandId, IDbCommand> CommandStore { get; }
+		public static Store<TransactionId, IDbTransaction> TransactionStore { get; }
+		public static Store<DataReaderId, IDataReader> ReaderStore { get; }
 	}
 }

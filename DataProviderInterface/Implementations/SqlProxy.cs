@@ -9,14 +9,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	public sealed partial class SqlProxy : ISqlProxy
 	{
 		private readonly Store<ConnectionId, SqlConnection> _connectionStore;
-		private readonly Store<Guid, IDbCommand> _commandStore;
-		private readonly Store<Guid, IDataReader> _readerStore;
-		private readonly Store<Guid, IDbTransaction> _transactionStore;
+		private readonly Store<CommandId, IDbCommand> _commandStore;
+		private readonly Store<TransactionId, IDbTransaction> _transactionStore;
+		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		public SqlProxy(
 			Store<ConnectionId, SqlConnection> connectionStore,
-			Store<Guid, IDbCommand> commandStore,
-			Store<Guid, IDbTransaction> transactionStore,
-			Store<Guid, IDataReader> readerStore)
+			Store<CommandId, IDbCommand> commandStore,
+			Store<TransactionId, IDbTransaction> transactionStore,
+			Store<DataReaderId, IDataReader> readerStore)
 		{
 			if (connectionStore == null)
 				throw new ArgumentNullException(nameof(connectionStore));

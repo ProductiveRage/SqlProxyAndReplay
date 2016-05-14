@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
@@ -11,9 +12,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private readonly IRemoteSqlCommand _command;
 		private readonly IRemoteSqlTransaction _transaction;
 		private readonly IRemoteSqlDataReader _reader;
-		private readonly Guid _commandId;
+		private readonly CommandId _commandId;
 		private bool _disposed;
-		public RemoteSqlCommandClient(IRemoteSqlConnection connection, IRemoteSqlCommand command, IRemoteSqlTransaction transaction, IRemoteSqlDataReader reader, Guid commandId)
+		public RemoteSqlCommandClient(IRemoteSqlConnection connection, IRemoteSqlCommand command, IRemoteSqlTransaction transaction, IRemoteSqlDataReader reader, CommandId commandId)
 		{
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
@@ -107,7 +108,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				var transactionId = _command.GetTransaction(_commandId);
 				if (transactionId == null)
 					return null;
-				return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, transactionId.Value);
+				return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, transactionId);
 			}
 			set
 			{

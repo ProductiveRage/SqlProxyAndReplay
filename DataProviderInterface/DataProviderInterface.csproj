@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefaultStores.cs" />
+    <Compile Include="IDs\DataReaderId.cs" />
+    <Compile Include="IDs\TransactionId.cs" />
+    <Compile Include="IDs\CommandId.cs" />
     <Compile Include="IDs\ConnectionId.cs" />
     <Compile Include="Interfaces\IRemoteDataParameterCollection.cs" />
     <Compile Include="InvalidIdException.cs" />

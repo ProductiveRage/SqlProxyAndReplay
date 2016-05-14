@@ -33,8 +33,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		void Dispose(ConnectionId connectionId);
 
 		[OperationContract(Name = "BeginTransactionWithDefaultIsolationLevel")]
-		Guid BeginTransaction(ConnectionId connectionId);
+		TransactionId BeginTransaction(ConnectionId connectionId);
 		[OperationContract]
-		Guid BeginTransaction(ConnectionId connectionId, IsolationLevel il);
+		TransactionId BeginTransaction(ConnectionId connectionId, IsolationLevel il);
 	}
 }

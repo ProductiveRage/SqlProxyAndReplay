@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 {
@@ -7,67 +8,67 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlDataReader
 	{
 		[OperationContract]
-		bool Read(Guid readerId);
+		bool Read(DataReaderId readerId);
 		[OperationContract]
-		bool NextResult(Guid readerId);
+		bool NextResult(DataReaderId readerId);
 		[OperationContract(Name = "CloseReader")]
-		void Close(Guid readerId);
+		void Close(DataReaderId readerId);
 		[OperationContract(Name = "DisposeReader")]
-		void Dispose(Guid readerId);
+		void Dispose(DataReaderId readerId);
 
 		[OperationContract]
-		int GetDepth(Guid readerId);
+		int GetDepth(DataReaderId readerId);
 		[OperationContract]
-		int GetFieldCount(Guid readerId);
+		int GetFieldCount(DataReaderId readerId);
 		[OperationContract]
-		bool GetIsClosed(Guid readerId);
+		bool GetIsClosed(DataReaderId readerId);
 		[OperationContract]
-		int GetRecordsAffected(Guid readerId);
+		int GetRecordsAffected(DataReaderId readerId);
 
 		[OperationContract]
-		bool IsDBNull(Guid readerId, int i);
+		bool IsDBNull(DataReaderId readerId, int i);
 
 		[OperationContract]
-		bool GetBoolean(Guid readerId, int i);
+		bool GetBoolean(DataReaderId readerId, int i);
 		[OperationContract]
-		byte GetByte(Guid readerId, int i);
+		byte GetByte(DataReaderId readerId, int i);
 		[OperationContract]
-		Tuple<long, byte[]> GetBytes(Guid readerId, int i, long fieldOffset, byte[] buffer, int bufferoffset, int length);
+		Tuple<long, byte[]> GetBytes(DataReaderId readerId, int i, long fieldOffset, byte[] buffer, int bufferoffset, int length);
 		[OperationContract]
-		char GetChar(Guid readerId, int i);
+		char GetChar(DataReaderId readerId, int i);
 		[OperationContract]
-		Tuple<long, char[]> GetChars(Guid readerId, int i, long fieldoffset, char[] buffer, int bufferoffset, int length);
+		Tuple<long, char[]> GetChars(DataReaderId readerId, int i, long fieldoffset, char[] buffer, int bufferoffset, int length);
 		[OperationContract]
-		Guid GetData(Guid readerId, int i);
+		DataReaderId GetData(DataReaderId readerId, int i);
 		[OperationContract]
-		string GetDataTypeName(Guid readerId, int i);
+		string GetDataTypeName(DataReaderId readerId, int i);
 		[OperationContract]
-		DateTime GetDateTime(Guid readerId, int i);
+		DateTime GetDateTime(DataReaderId readerId, int i);
 		[OperationContract]
-		decimal GetDecimal(Guid readerId, int i);
+		decimal GetDecimal(DataReaderId readerId, int i);
 		[OperationContract]
-		double GetDouble(Guid readerId, int i);
+		double GetDouble(DataReaderId readerId, int i);
 		[OperationContract]
-		string GetFieldType(Guid readerId, int i);
+		string GetFieldType(DataReaderId readerId, int i);
 		[OperationContract]
-		float GetFloat(Guid readerId, int i);
+		float GetFloat(DataReaderId readerId, int i);
 		[OperationContract]
-		Guid GetGuid(Guid readerId, int i);
+		Guid GetGuid(DataReaderId readerId, int i);
 		[OperationContract]
-		short GetInt16(Guid readerId, int i);
+		short GetInt16(DataReaderId readerId, int i);
 		[OperationContract]
-		int GetInt32(Guid readerId, int i);
+		int GetInt32(DataReaderId readerId, int i);
 		[OperationContract]
-		long GetInt64(Guid readerId, int i);
+		long GetInt64(DataReaderId readerId, int i);
 		[OperationContract]
-		string GetName(Guid readerId, int i);
+		string GetName(DataReaderId readerId, int i);
 		[OperationContract]
-		int GetOrdinal(Guid readerId, string name);
+		int GetOrdinal(DataReaderId readerId, string name);
 		[OperationContract]
-		string GetString(Guid readerId, int i);
+		string GetString(DataReaderId readerId, int i);
 		[OperationContract]
-		object GetValue(Guid readerId, int i);
+		object GetValue(DataReaderId readerId, int i);
 		[OperationContract]
-		int GetValues(Guid readerId, object[] values);
+		int GetValues(DataReaderId readerId, object[] values);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
@@ -7,12 +8,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 	internal sealed class RemoteSqlDataReaderClient : IDataReader
 	{
 		private readonly IRemoteSqlDataReader _reader;
-		private readonly Guid _readerId;
+		private readonly DataReaderId _readerId;
 		private bool _disposed;
-		public RemoteSqlDataReaderClient(IRemoteSqlDataReader reader, Guid readerId)
+		public RemoteSqlDataReaderClient(IRemoteSqlDataReader reader, DataReaderId readerId)
 		{
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
+			if (readerId == null)
+				throw new ArgumentNullException(nameof(readerId));
 
 			_reader = reader;
 			_readerId = readerId;

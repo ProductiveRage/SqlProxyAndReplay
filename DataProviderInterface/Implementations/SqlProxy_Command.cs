@@ -8,24 +8,27 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public Guid GetNewCommandId(ConnectionId connectionId)
+		public CommandId GetNewCommandId(ConnectionId connectionId)
 		{
+			if (connectionId == null)
+				throw new ArgumentNullException(nameof(connectionId));
+
 			return _commandStore.Add(new SqlCommand
 			{
 				Connection = _connectionStore.Get(connectionId)
 			});
 		}
 
-		public string GetCommandText(Guid commandId) { return _commandStore.Get(commandId).CommandText; }
-		public void SetCommandText(Guid commandId, string value) { _commandStore.Get(commandId).CommandText = value; }
+		public string GetCommandText(CommandId commandId) { return _commandStore.Get(commandId).CommandText; }
+		public void SetCommandText(CommandId commandId, string value) { _commandStore.Get(commandId).CommandText = value; }
 
-		public int GetCommandTimeout(Guid commandId) { return _commandStore.Get(commandId).CommandTimeout; }
-		public void SetCommandTimeout(Guid commandId, int value) { _commandStore.Get(commandId).CommandTimeout = value; }
+		public int GetCommandTimeout(CommandId commandId) { return _commandStore.Get(commandId).CommandTimeout; }
+		public void SetCommandTimeout(CommandId commandId, int value) { _commandStore.Get(commandId).CommandTimeout = value; }
 
-		public CommandType GetCommandType(Guid commandId) { return _commandStore.Get(commandId).CommandType; }
-		public void SetCommandType(Guid commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
+		public CommandType GetCommandType(CommandId commandId) { return _commandStore.Get(commandId).CommandType; }
+		public void SetCommandType(CommandId commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
 
-		ConnectionId IRemoteSqlCommand.GetConnection(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		ConnectionId IRemoteSqlCommand.GetConnection(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
@@ -35,7 +38,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new Exception("All connnections should be of type SqlConnection, but this one is \"" + command.Connection.GetType() + "\")");
 			return _connectionStore.GetIdFor(sqlConnection);
 		}
-		public void SetConnection(Guid commandId, ConnectionId optionalConnectionId)
+		public void SetConnection(CommandId commandId, ConnectionId optionalConnectionId)
 		{
 			var command = _commandStore.Get(commandId);
 			if (optionalConnectionId == null)
@@ -54,7 +57,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			throw new NotImplementedException(); // TODO
 		}
 
-		public Guid? GetTransaction(Guid commandId)
+		public TransactionId GetTransaction(CommandId commandId)
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Transaction == null)
@@ -65,42 +68,42 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			return _transactionStore.GetIdFor(sqlTransaction);
 		}
 
-		public void SetTransaction(Guid commandId, Guid? transactionId)
+		public void SetTransaction(CommandId commandId, TransactionId optionalTransactionId)
 		{
 			var command = _commandStore.Get(commandId);
-			if (transactionId == null)
+			if (optionalTransactionId == null)
 				command.Transaction = null;
 			else
-				command.Transaction = _transactionStore.Get(transactionId.Value);
+				command.Transaction = _transactionStore.Get(optionalTransactionId);
 		}
 
-		public UpdateRowSource GetUpdatedRowSource(Guid commandId) { return _commandStore.Get(commandId).UpdatedRowSource; }
-		public void SetUpdatedRowSource(Guid commandId, UpdateRowSource value) { _commandStore.Get(commandId).UpdatedRowSource = value; }
+		public UpdateRowSource GetUpdatedRowSource(CommandId commandId) { return _commandStore.Get(commandId).UpdatedRowSource; }
+		public void SetUpdatedRowSource(CommandId commandId, UpdateRowSource value) { _commandStore.Get(commandId).UpdatedRowSource = value; }
 
-		public void Prepare(Guid commandId)
+		public void Prepare(CommandId commandId)
 		{
 			_commandStore.Get(commandId).Prepare();
 		}
-		public void Cancel(Guid commandId)
+		public void Cancel(CommandId commandId)
 		{
 			_commandStore.Get(commandId).Cancel();
 		}
-		void IRemoteSqlCommand.Dispose(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		void IRemoteSqlCommand.Dispose(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			_commandStore.Get(commandId).Dispose();
 			_commandStore.Remove(commandId);
 
 		}
 
-		public int ExecuteNonQuery(Guid commandId)
+		public int ExecuteNonQuery(CommandId commandId)
 		{
 			return _commandStore.Get(commandId).ExecuteNonQuery();
 		}
-		public object ExecuteScalar(Guid commandId)
+		public object ExecuteScalar(CommandId commandId)
 		{
 			return _commandStore.Get(commandId).ExecuteScalar();
 		}
-		public Guid ExecuteReader(Guid commandId, CommandBehavior behavior = CommandBehavior.Default)
+		public DataReaderId ExecuteReader(CommandId commandId, CommandBehavior behavior = CommandBehavior.Default)
 		{
 			var reader = _commandStore.Get(commandId).ExecuteReader(behavior);
 			try
