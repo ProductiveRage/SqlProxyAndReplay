@@ -45,14 +45,16 @@
     <Compile Include="IRemoteDataParameterCollection.cs" />
     <Compile Include="InvalidIdException.cs" />
     <Compile Include="IRemoteSqlDataReader.cs" />
-    <Compile Include="RemoteSqlDataReader.cs" />
+    <Compile Include="ISqlProxy.cs" />
+    <Compile Include="SqlProxy.cs" />
+    <Compile Include="SqlProxy_DataReader.cs" />
     <Compile Include="Store.cs" />
-    <Compile Include="RemoteSqlTransaction.cs" />
+    <Compile Include="SqlProxy_Transaction.cs" />
     <Compile Include="IRemoteSqlTransaction.cs" />
     <Compile Include="IRemoteSqlCommand.cs" />
     <Compile Include="IRemoteSqlConnection.cs" />
-    <Compile Include="RemoteSqlCommand.cs" />
-    <Compile Include="RemoteSqlConnection.cs" />
+    <Compile Include="SqlProxy_Command.cs" />
+    <Compile Include="SqlProxy_Connection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

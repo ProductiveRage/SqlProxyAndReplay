@@ -1,24 +1,13 @@
 ﻿using System;
-using System.Data;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class RemoteSqlDataReader : IRemoteSqlDataReader
+	public sealed partial class SqlProxy : ISqlProxy
 	{
-		private readonly Store<IDataReader> _readerStore;
-		public RemoteSqlDataReader(Store<IDataReader> readerStore)
-		{
-			if (readerStore == null)
-				throw new ArgumentNullException(nameof(readerStore));
-
-			_readerStore = readerStore;
-		}
-		public RemoteSqlDataReader() : this(DefaultStores.ReaderStore) { }
-
 		public bool Read(Guid readerId) { return _readerStore.Get(readerId).Read(); }
 		public bool NextResult(Guid readerId) { return _readerStore.Get(readerId).NextResult(); }
 		public void Close(Guid readerId) { _readerStore.Get(readerId).Close(); }
-		public void Dispose(Guid readerId)
+		void IRemoteSqlDataReader.Dispose(Guid readerId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			_readerStore.Get(readerId).Dispose();
 			_readerStore.Remove(readerId);

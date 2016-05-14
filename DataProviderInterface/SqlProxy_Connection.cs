@@ -4,23 +4,9 @@ using System.Data.SqlClient;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class RemoteSqlConnection : IRemoteSqlConnection
+	public sealed partial class SqlProxy : ISqlProxy
 	{
-		private readonly Store<SqlConnection> _connectionStore;
-		private readonly Store<IDbTransaction> _transactionStore;
-		public RemoteSqlConnection(Store<SqlConnection> connectionStore, Store<IDbTransaction> transactionStore)
-		{
-			if (connectionStore == null)
-				throw new ArgumentNullException(nameof(connectionStore));
-			if (transactionStore == null)
-				throw new ArgumentNullException(nameof(transactionStore));
-
-			_connectionStore = connectionStore;
-			_transactionStore = transactionStore;
-		}
-		public RemoteSqlConnection() : this(DefaultStores.ConnectionStore, DefaultStores.TransactionStore) { }
-
-		public Guid GetNewId() { return _connectionStore.Add(new SqlConnection()); }
+		public Guid GetNewConnectionId() { return _connectionStore.Add(new SqlConnection()); }
 
 		public string GetConnectionString(Guid connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
 		public void SetConnectionString(Guid connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
@@ -31,8 +17,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		public void ChangeDatabase(Guid connectionId, string databaseName) { _connectionStore.Get(connectionId).ChangeDatabase(databaseName); }
 
 		public void Open(Guid connectionId) { _connectionStore.Get(connectionId).Open(); }
-		public void Close(Guid connectionId) { _connectionStore.Get(connectionId).Close(); }
-		public void Dispose(Guid connectionId)
+		void IRemoteSqlConnection.Close(Guid connectionId) { _connectionStore.Get(connectionId).Close(); } // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		void IRemoteSqlConnection.Dispose(Guid connectionId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			_connectionStore.Get(connectionId).Dispose();
 			_connectionStore.Remove(connectionId);
@@ -64,6 +50,5 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 				throw;
 			}
 		}
-
 	}
 }

@@ -6,30 +6,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 {
 	public sealed class Host : IDisposable
 	{
-		private ServiceHost _connectionHost, _commandHost, _readerHost;
+		private ServiceHost _host;
 		private bool _disposed;
-		public Host(Uri connectionServerEndPoint, Uri commandServerEndPoint, Uri readerServerEndPoint)
+		public Host(Uri endPoint)
 		{
-			if (connectionServerEndPoint == null)
-				throw new ArgumentNullException(nameof(connectionServerEndPoint));
-			if (commandServerEndPoint == null)
-				throw new ArgumentNullException(nameof(commandServerEndPoint));
-			if (readerServerEndPoint == null)
-				throw new ArgumentNullException(nameof(readerServerEndPoint));
+			if (endPoint == null)
+				throw new ArgumentNullException(nameof(endPoint));
 
 			try
 			{
-				_connectionHost = new ServiceHost(typeof(RemoteSqlConnection));
-				_connectionHost.AddServiceEndpoint(typeof(IRemoteSqlConnection), new NetTcpBinding(), connectionServerEndPoint);
-				_connectionHost.Open();
-
-				_commandHost = new ServiceHost(typeof(RemoteSqlCommand));
-				_commandHost.AddServiceEndpoint(typeof(IRemoteSqlCommand), new NetTcpBinding(), commandServerEndPoint);
-				_commandHost.Open();
-
-				_readerHost = new ServiceHost(typeof(RemoteSqlDataReader));
-				_readerHost.AddServiceEndpoint(typeof(IRemoteSqlDataReader), new NetTcpBinding(), readerServerEndPoint);
-				_readerHost.Open();
+				_host = new ServiceHost(typeof(SqlProxy));
+				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
+				_host.Open();
 			}
 			catch
 			{
@@ -56,12 +44,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			if (disposing)
 			{
 				// TODO: Note: This waits until clients have disconnect
-				if (_connectionHost != null)
-					((IDisposable)_connectionHost).Dispose();
-				if (_commandHost != null)
-					((IDisposable)_commandHost).Dispose();
-				if (_readerHost != null)
-					((IDisposable)_readerHost).Dispose();
+				if (_host != null)
+					((IDisposable)_host).Dispose();
 			}
 
 			_disposed = true;

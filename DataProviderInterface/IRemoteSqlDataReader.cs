@@ -10,9 +10,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		bool Read(Guid readerId);
 		[OperationContract]
 		bool NextResult(Guid readerId);
-		[OperationContract]
+		[OperationContract(Name = "CloseReader")]
 		void Close(Guid readerId);
-		[OperationContract]
+		[OperationContract(Name = "DisposeReader")]
 		void Dispose(Guid readerId);
 
 		[OperationContract]

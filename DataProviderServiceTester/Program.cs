@@ -7,10 +7,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 	{
 		static void Main(string[] args)
 		{
-			var connectionServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlConnection");
-			var commandServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlCommand");
-			var readerServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlDataReader");
-			using (var host = new Host(connectionServerEndPoint, commandServerEndPoint, readerServerEndPoint))
+			var endPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
+			using (var host = new Host(endPoint))
 			{
 				Console.WriteLine("Started..");
 				Console.WriteLine("Press [Enter] to end..");

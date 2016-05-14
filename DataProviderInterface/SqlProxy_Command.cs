@@ -4,35 +4,9 @@ using System.Data.SqlClient;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class RemoteSqlCommand : IRemoteSqlCommand
+	public sealed partial class SqlProxy : ISqlProxy
 	{
-		private readonly Store<SqlConnection> _connectionStore;
-		private readonly Store<IDbCommand> _commandStore;
-		private readonly Store<IDataReader> _readerStore;
-		private readonly Store<IDbTransaction> _transactionStore;
-		public RemoteSqlCommand(
-			Store<SqlConnection> connectionStore,
-			Store<IDbCommand> commandStore,
-			Store<IDbTransaction> transactionStore,
-			Store<IDataReader> readerStore)
-		{
-			if (connectionStore == null)
-				throw new ArgumentNullException(nameof(connectionStore));
-			if (commandStore == null)
-				throw new ArgumentNullException(nameof(commandStore));
-			if (transactionStore == null)
-				throw new ArgumentNullException(nameof(transactionStore));
-			if (readerStore == null)
-				throw new ArgumentNullException(nameof(readerStore));
-
-			_connectionStore = connectionStore;
-			_commandStore = commandStore;
-			_transactionStore = transactionStore;
-			_readerStore = readerStore;
-		}
-		public RemoteSqlCommand() : this(DefaultStores.ConnectionStore, DefaultStores.CommandStore, DefaultStores.TransactionStore, DefaultStores.ReaderStore) { }
-
-		public Guid GetNewId(Guid connectionId)
+		public Guid GetNewCommandId(Guid connectionId)
 		{
 			return _commandStore.Add(new SqlCommand
 			{
@@ -49,7 +23,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		public CommandType GetCommandType(Guid commandId) { return _commandStore.Get(commandId).CommandType; }
 		public void SetCommandType(Guid commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
 
-		public Guid? GetConnection(Guid commandId)
+		Guid? IRemoteSqlCommand.GetConnection(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
@@ -109,7 +83,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		{
 			_commandStore.Get(commandId).Cancel();
 		}
-		public void Dispose(Guid commandId)
+		void IRemoteSqlCommand.Dispose(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			_commandStore.Get(commandId).Dispose();
 			_commandStore.Remove(commandId);

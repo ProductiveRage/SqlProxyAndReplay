@@ -7,7 +7,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 	[ServiceContract]
 	public interface IRemoteSqlTransaction
 	{
-		[OperationContract]
+		[OperationContract(Name = "GetTransactionConnection")]
 		Guid GetConnection(Guid transactionId);
 		[OperationContract]
 		IsolationLevel GetIsolationLevel(Guid transactionId);
@@ -16,7 +16,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		void Commit(Guid transactionId);
 		[OperationContract]
 		void Rollback(Guid transactionId);
-		[OperationContract]
+		[OperationContract(Name = "DisposeTransaction")]
 		void Dispose(Guid transactionId);
 	}
 }

@@ -8,7 +8,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 	public interface IRemoteSqlCommand
 	{
 		[OperationContract]
-		Guid GetNewId(Guid connectionId);
+		Guid GetNewCommandId(Guid connectionId);
 
 		[OperationContract]
 		string GetCommandText(Guid commandId);
@@ -26,9 +26,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		[OperationContract]
 		void SetCommandType(Guid commandId, CommandType value);
 
-		[OperationContract]
+		[OperationContract(Name = "GetCommandConnection")]
 		Guid? GetConnection(Guid commandId);
-		[OperationContract]
+		[OperationContract(Name = "SetCommandConnection")]
 		void SetConnection(Guid commandId, Guid? connectionId);
 
 		/* TODO
@@ -51,7 +51,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		void Prepare(Guid commandId);
 		[OperationContract]
 		void Cancel(Guid commandId);
-		[OperationContract]
+		[OperationContract(Name = "DisposeCommand")]
 		void Dispose(Guid commandId);
 
 		[OperationContract]

@@ -8,7 +8,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 	public interface IRemoteSqlConnection
 	{
 		[OperationContract]
-		Guid GetNewId();
+		Guid GetNewConnectionId();
 
 		[OperationContract]
 		string GetConnectionString(Guid connectionId);
@@ -26,9 +26,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 
 		[OperationContract]
 		void Open(Guid connectionId);
-		[OperationContract]
+		[OperationContract(Name = "CloseConnection")]
 		void Close(Guid connectionId);
-		[OperationContract]
+		[OperationContract(Name = "DisposeConnection")]
 		void Dispose(Guid connectionId);
 
 		[OperationContract(Name = "BeginTransactionWithDefaultIsolationLevel")]

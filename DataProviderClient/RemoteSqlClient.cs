@@ -7,36 +7,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 {
 	public sealed class RemoteSqlClient : IDisposable
 	{
-		private ChannelFactory<IRemoteSqlConnection> _connectionChannelFactory;
-		private ChannelFactory<IRemoteSqlCommand> _commandChannelFactory;
-		private ChannelFactory<IRemoteSqlTransaction> _translationChannelFactory;
-		private ChannelFactory<IRemoteSqlDataReader> _readerChannelFactory;
-		private IRemoteSqlConnection _connection;
-		private IRemoteSqlCommand _command;
-		private IRemoteSqlTransaction _transaction;
-		private IRemoteSqlDataReader _reader;
+		private ChannelFactory<ISqlProxy> _proxyChannelFactory;
+		private ISqlProxy _proxy;
 		private bool _disposed;
-		public RemoteSqlClient(Uri connectionServerEndPoint, Uri commandServerEndPoint, Uri transactionServerEndPoint, Uri readerServerEndPoint)
+		public RemoteSqlClient(Uri endPoint)
 		{
-			if (connectionServerEndPoint == null)
-				throw new ArgumentNullException(nameof(connectionServerEndPoint));
-			if (commandServerEndPoint == null)
-				throw new ArgumentNullException(nameof(commandServerEndPoint));
-			if (transactionServerEndPoint == null)
-				throw new ArgumentNullException(nameof(transactionServerEndPoint));
-			if (readerServerEndPoint == null)
-				throw new ArgumentNullException(nameof(readerServerEndPoint));
+			if (endPoint == null)
+				throw new ArgumentNullException(nameof(endPoint));
 
 			try
 			{
-				_connectionChannelFactory = new ChannelFactory<IRemoteSqlConnection>(new NetTcpBinding(), new EndpointAddress(connectionServerEndPoint));
-				_connection = _connectionChannelFactory.CreateChannel();
-				_commandChannelFactory = new ChannelFactory<IRemoteSqlCommand>(new NetTcpBinding(), new EndpointAddress(commandServerEndPoint));
-				_command = _commandChannelFactory.CreateChannel();
-				_translationChannelFactory = new ChannelFactory<IRemoteSqlTransaction>(new NetTcpBinding(), new EndpointAddress(transactionServerEndPoint));
-				_transaction = _translationChannelFactory.CreateChannel();
-				_readerChannelFactory = new ChannelFactory<IRemoteSqlDataReader>(new NetTcpBinding(), new EndpointAddress(readerServerEndPoint));
-				_reader = _readerChannelFactory.CreateChannel();
+				_proxyChannelFactory = new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint));
+				_proxy = _proxyChannelFactory.CreateChannel();
 			}
 			catch
 			{
@@ -61,20 +43,24 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 			if (disposing)
 			{
-				if (_connectionChannelFactory != null)
-					((IDisposable)_connectionChannelFactory).Dispose();
-				if (_commandChannelFactory != null)
-					((IDisposable)_commandChannelFactory).Dispose();
-				if (_translationChannelFactory != null)
-					((IDisposable)_translationChannelFactory).Dispose();
-				if (_readerChannelFactory != null)
-					((IDisposable)_readerChannelFactory).Dispose();
+				if (_proxyChannelFactory != null)
+					((IDisposable)_proxyChannelFactory).Dispose();
 			}
 
 			_disposed = true;
 		}
 
-		public IDbConnection GetConnection() { ThrowIfDisposed(); return new RemoteSqlConnectionClient(_connection, _command, _transaction, _reader, _connection.GetNewId()); }
+		public IDbConnection GetConnection()
+		{
+			ThrowIfDisposed();
+			return new RemoteSqlConnectionClient(
+				connection: _proxy,
+				command: _proxy,
+				transaction: _proxy,
+				reader: _proxy,
+				connectionId: _proxy.GetNewConnectionId()
+			);
+		}
 
 		public IDbConnection GetConnection(string connectionString)
 		{

@@ -3,25 +3,8 @@ using System.Data;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class RemoteSqlTransaction : IRemoteSqlTransaction
+	public sealed partial class SqlProxy : ISqlProxy
 	{
-		private readonly IRemoteSqlConnection _connection;
-
-		public RemoteSqlTransaction(RemoteSqlConnection connection, IsolationLevel? isolationLevel = null)
-		{
-			if (connection == null)
-				throw new ArgumentNullException(nameof(connection));
-
-			_connection = connection;
-			/* TODO
-			Transaction = (isolationLevel == null)
-				? connection.Connection.BeginTransaction()
-				: connection.Connection.BeginTransaction(isolationLevel.Value);
-				*/
-		}
-
-		public Guid TransactionId { get; }
-
 		public Guid GetConnection(Guid transactionId)
 		{
 			throw new NotImplementedException(); // TODO

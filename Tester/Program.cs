@@ -10,11 +10,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 		static void Main(string[] args)
 		{
 			// Note: Need the DataProviderServiceTester project to be running in order for these connections to be handled
-			var connectionServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlConnection");
-			var commandChannelFactory = new Uri("net.tcp://localhost:5000/RemoteSqlCommand");
-			var transactionServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlTransaction");
-			var readerServerEndPoint = new Uri("net.tcp://localhost:5000/RemoteSqlDataReader");
-
+			var proxyEndPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
 			var connectionString =
 				new SqlConnectionStringBuilder
 				{
@@ -45,7 +41,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					}
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(connectionServerEndPoint, commandChannelFactory, transactionServerEndPoint, readerServerEndPoint))
+			using (var connCreator = new RemoteSqlClient(proxyEndPoint))
 			{
 				using (var conn = connCreator.GetConnection(connectionString))
 				{
@@ -64,7 +60,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					}
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(connectionServerEndPoint, commandChannelFactory, transactionServerEndPoint, readerServerEndPoint))
+			using (var connCreator = new RemoteSqlClient(proxyEndPoint))
 			{
 				using (var conn = connCreator.GetConnection(connectionString))
 				{
