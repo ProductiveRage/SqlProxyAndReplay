@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 {

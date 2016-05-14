@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{

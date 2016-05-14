@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 {
 	[ServiceContract]
 	public interface IRemoteSqlDataReader

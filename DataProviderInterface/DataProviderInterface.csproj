@@ -42,19 +42,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefaultStores.cs" />
-    <Compile Include="IRemoteDataParameterCollection.cs" />
+    <Compile Include="Interfaces\IRemoteDataParameterCollection.cs" />
     <Compile Include="InvalidIdException.cs" />
-    <Compile Include="IRemoteSqlDataReader.cs" />
-    <Compile Include="ISqlProxy.cs" />
-    <Compile Include="SqlProxy.cs" />
-    <Compile Include="SqlProxy_DataReader.cs" />
+    <Compile Include="Interfaces\IRemoteSqlDataReader.cs" />
+    <Compile Include="Interfaces\ISqlProxy.cs" />
+    <Compile Include="Implementations\SqlProxy.cs" />
+    <Compile Include="Implementations\SqlProxy_DataReader.cs" />
     <Compile Include="Store.cs" />
-    <Compile Include="SqlProxy_Transaction.cs" />
-    <Compile Include="IRemoteSqlTransaction.cs" />
-    <Compile Include="IRemoteSqlCommand.cs" />
-    <Compile Include="IRemoteSqlConnection.cs" />
-    <Compile Include="SqlProxy_Command.cs" />
-    <Compile Include="SqlProxy_Connection.cs" />
+    <Compile Include="Implementations\SqlProxy_Transaction.cs" />
+    <Compile Include="Interfaces\IRemoteSqlTransaction.cs" />
+    <Compile Include="Interfaces\IRemoteSqlCommand.cs" />
+    <Compile Include="Interfaces\IRemoteSqlConnection.cs" />
+    <Compile Include="Implementations\SqlProxy_Command.cs" />
+    <Compile Include="Implementations\SqlProxy_Connection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
