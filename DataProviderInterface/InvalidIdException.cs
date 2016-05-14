@@ -14,12 +14,12 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		}
 		private InvalidIdException(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
-			// TODO info.AddValue("Id", Id.ToString());
+			info.AddValue("Id", Id);
 		}
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
-			// TODO Id = Guid.Parse(info.GetString("Id"));
+			Id = (TId)info.GetValue("Id", typeof(TId));
 		}
 
 		public TId Id { get; private set; }
