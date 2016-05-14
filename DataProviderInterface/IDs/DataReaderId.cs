@@ -10,5 +10,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs
 			Value = value;
 		}
 		public Guid Value { get; }
+		public override string ToString()
+		{
+			return Value.ToString();
+		}
 	}
 }
