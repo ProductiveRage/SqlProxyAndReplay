@@ -8,14 +8,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public CommandId GetNewCommandId(ConnectionId connectionId)
-		{
-			return _commandStore.Add(new SqlCommand
-			{
-				Connection = _connectionStore.Get(connectionId)
-			});
-		}
-
 		public string GetCommandText(CommandId commandId) { return _commandStore.Get(commandId).CommandText; }
 		public void SetCommandText(CommandId commandId, string value) { _commandStore.Get(commandId).CommandText = value; }
 

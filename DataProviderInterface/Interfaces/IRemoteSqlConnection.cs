@@ -35,5 +35,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		TransactionId BeginTransaction(ConnectionId connectionId);
 		[OperationContract]
 		TransactionId BeginTransaction(ConnectionId connectionId, IsolationLevel il);
+
+		[OperationContract]
+		CommandId CreateCommand(ConnectionId connectionId);
 	}
 }

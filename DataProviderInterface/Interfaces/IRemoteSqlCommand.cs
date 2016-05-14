@@ -8,9 +8,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlCommand
 	{
 		[OperationContract]
-		CommandId GetNewCommandId(ConnectionId connectionId);
-
-		[OperationContract]
 		string GetCommandText(CommandId commandId);
 
 		[OperationContract]
