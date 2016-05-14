@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
@@ -19,8 +18,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public void ChangeDatabase(ConnectionId connectionId, string databaseName) { _connectionStore.Get(connectionId).ChangeDatabase(databaseName); }
 
 		public void Open(ConnectionId connectionId) { _connectionStore.Get(connectionId).Open(); }
-		void IRemoteSqlConnection.Close(ConnectionId connectionId) { _connectionStore.Get(connectionId).Close(); } // TODO: Use typed ids to avoid explicitly-implementing interface methods?
-		void IRemoteSqlConnection.Dispose(ConnectionId connectionId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		public void Close(ConnectionId connectionId) { _connectionStore.Get(connectionId).Close(); }
+		public void Dispose(ConnectionId connectionId)
 		{
 			_connectionStore.Get(connectionId).Dispose();
 			_connectionStore.Remove(connectionId);

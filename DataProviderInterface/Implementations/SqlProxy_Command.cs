@@ -25,7 +25,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public CommandType GetCommandType(CommandId commandId) { return _commandStore.Get(commandId).CommandType; }
 		public void SetCommandType(CommandId commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
 
-		ConnectionId? IRemoteSqlCommand.GetConnection(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		public ConnectionId? GetConnection(CommandId commandId)
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
@@ -85,11 +85,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		{
 			_commandStore.Get(commandId).Cancel();
 		}
-		void IRemoteSqlCommand.Dispose(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		public void Dispose(CommandId commandId)
 		{
 			_commandStore.Get(commandId).Dispose();
 			_commandStore.Remove(commandId);
-
 		}
 
 		public int ExecuteNonQuery(CommandId commandId)

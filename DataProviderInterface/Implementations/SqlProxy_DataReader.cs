@@ -9,7 +9,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public bool Read(DataReaderId readerId) { return _readerStore.Get(readerId).Read(); }
 		public bool NextResult(DataReaderId readerId) { return _readerStore.Get(readerId).NextResult(); }
 		public void Close(DataReaderId readerId) { _readerStore.Get(readerId).Close(); }
-		void IRemoteSqlDataReader.Dispose(DataReaderId readerId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		public void Dispose(DataReaderId readerId)
 		{
 			_readerStore.Get(readerId).Dispose();
 			_readerStore.Remove(readerId);
