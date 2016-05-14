@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public Guid GetNewCommandId(Guid connectionId)
+		public Guid GetNewCommandId(ConnectionId connectionId)
 		{
 			return _commandStore.Add(new SqlCommand
 			{
@@ -24,7 +25,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public CommandType GetCommandType(Guid commandId) { return _commandStore.Get(commandId).CommandType; }
 		public void SetCommandType(Guid commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
 
-		Guid? IRemoteSqlCommand.GetConnection(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		ConnectionId IRemoteSqlCommand.GetConnection(Guid commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
@@ -34,13 +35,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new Exception("All connnections should be of type SqlConnection, but this one is \"" + command.Connection.GetType() + "\")");
 			return _connectionStore.GetIdFor(sqlConnection);
 		}
-		public void SetConnection(Guid commandId, Guid? connectionId)
+		public void SetConnection(Guid commandId, ConnectionId optionalConnectionId)
 		{
 			var command = _commandStore.Get(commandId);
-			if (connectionId == null)
+			if (optionalConnectionId == null)
 				command.Connection = null;
 			else
-				command.Connection = _connectionStore.Get(connectionId.Value);
+				command.Connection = _connectionStore.Get(optionalConnectionId);
 		}
 
 		public IDbDataParameter CreateParameter()

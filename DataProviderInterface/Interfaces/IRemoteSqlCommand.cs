@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.ServiceModel;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 {
@@ -8,7 +9,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlCommand
 	{
 		[OperationContract]
-		Guid GetNewCommandId(Guid connectionId);
+		Guid GetNewCommandId(ConnectionId connectionId);
 
 		[OperationContract]
 		string GetCommandText(Guid commandId);
@@ -27,9 +28,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		void SetCommandType(Guid commandId, CommandType value);
 
 		[OperationContract(Name = "GetCommandConnection")]
-		Guid? GetConnection(Guid commandId);
+		ConnectionId GetConnection(Guid commandId);
 		[OperationContract(Name = "SetCommandConnection")]
-		void SetConnection(Guid commandId, Guid? connectionId);
+		void SetConnection(Guid commandId, ConnectionId optionalConnectionId);
 
 		/* TODO
 		[OperationContract]

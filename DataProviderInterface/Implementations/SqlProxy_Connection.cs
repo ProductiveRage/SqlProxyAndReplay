@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public Guid GetNewConnectionId() { return _connectionStore.Add(new SqlConnection()); }
+		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlConnection()); }
 
-		public string GetConnectionString(Guid connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
-		public void SetConnectionString(Guid connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
-		public int GetConnectionTimeout(Guid connectionId) { return _connectionStore.Get(connectionId).ConnectionTimeout; }
-		public string GetDatabase(Guid connectionId) { return _connectionStore.Get(connectionId).Database; }
-		public ConnectionState GetState(Guid connectionId) { return _connectionStore.Get(connectionId).State; }
+		public string GetConnectionString(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
+		public void SetConnectionString(ConnectionId connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
+		public int GetConnectionTimeout(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionTimeout; }
+		public string GetDatabase(ConnectionId connectionId) { return _connectionStore.Get(connectionId).Database; }
+		public ConnectionState GetState(ConnectionId connectionId) { return _connectionStore.Get(connectionId).State; }
 
-		public void ChangeDatabase(Guid connectionId, string databaseName) { _connectionStore.Get(connectionId).ChangeDatabase(databaseName); }
+		public void ChangeDatabase(ConnectionId connectionId, string databaseName) { _connectionStore.Get(connectionId).ChangeDatabase(databaseName); }
 
-		public void Open(Guid connectionId) { _connectionStore.Get(connectionId).Open(); }
-		void IRemoteSqlConnection.Close(Guid connectionId) { _connectionStore.Get(connectionId).Close(); } // TODO: Use typed ids to avoid explicitly-implementing interface methods?
-		void IRemoteSqlConnection.Dispose(Guid connectionId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		public void Open(ConnectionId connectionId) { _connectionStore.Get(connectionId).Open(); }
+		void IRemoteSqlConnection.Close(ConnectionId connectionId) { _connectionStore.Get(connectionId).Close(); } // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		void IRemoteSqlConnection.Dispose(ConnectionId connectionId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			_connectionStore.Get(connectionId).Dispose();
 			_connectionStore.Remove(connectionId);
 		}
 
-		public Guid BeginTransaction(Guid connectionId)
+		public Guid BeginTransaction(ConnectionId connectionId)
 		{
 			var transaction = _connectionStore.Get(connectionId).BeginTransaction();
 			try
@@ -38,7 +39,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw;
 			}
 		}
-		public Guid BeginTransaction(Guid connectionId, IsolationLevel il)
+		public Guid BeginTransaction(ConnectionId connectionId, IsolationLevel il)
 		{
 			var transaction = _connectionStore.Get(connectionId).BeginTransaction(il);
 			try

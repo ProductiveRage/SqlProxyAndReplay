@@ -3,9 +3,9 @@ using System.Runtime.Serialization;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class InvalidIdException : Exception
+	public sealed class InvalidIdException<TId> : Exception
 	{
-		public InvalidIdException(Guid id, string idType) : base($"Invalid {idType} id specified: " + id)
+		public InvalidIdException(TId id, string idType) : base($"Invalid {idType} id specified: " + id)
 		{
 			if (string.IsNullOrWhiteSpace(idType))
 				throw new ArgumentException($"Null/blank {nameof(idType)} specified");
@@ -14,14 +14,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 		}
 		private InvalidIdException(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
-			info.AddValue("Id", Id.ToString());
+			// TODO info.AddValue("Id", Id.ToString());
 		}
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
-			Id = Guid.Parse(info.GetString("Id"));
+			// TODO Id = Guid.Parse(info.GetString("Id"));
 		}
 
-		public Guid Id { get; private set; }
+		public TId Id { get; private set; }
 	}
 }

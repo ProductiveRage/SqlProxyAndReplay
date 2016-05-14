@@ -1,5 +1,7 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.SqlClient;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
@@ -7,15 +9,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 	{
 		static DefaultStores()
 		{
-			ConnectionStore = new Store<SqlConnection>();
-			CommandStore = new Store<IDbCommand>();
-			TransactionStore = new Store<IDbTransaction>();
-			ReaderStore = new Store<IDataReader>();
+			ConnectionStore = new Store<ConnectionId, SqlConnection>(() => new ConnectionId(Guid.NewGuid()));
+			CommandStore = new Store<Guid, IDbCommand>(() => Guid.NewGuid());
+			TransactionStore = new Store<Guid, IDbTransaction>(() => Guid.NewGuid());
+			ReaderStore = new Store<Guid, IDataReader>(() => Guid.NewGuid());
 		}
 
-		public static Store<SqlConnection> ConnectionStore { get; }
-		public static Store<IDbCommand> CommandStore { get; }
-		public static Store<IDbTransaction> TransactionStore { get; }
-		public static Store<IDataReader> ReaderStore { get; }
+		public static Store<ConnectionId, SqlConnection> ConnectionStore { get; }
+		public static Store<Guid, IDbCommand> CommandStore { get; }
+		public static Store<Guid, IDbTransaction> TransactionStore { get; }
+		public static Store<Guid, IDataReader> ReaderStore { get; }
 	}
 }

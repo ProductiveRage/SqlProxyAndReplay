@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.ServiceModel;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 {
@@ -8,7 +9,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlTransaction
 	{
 		[OperationContract(Name = "GetTransactionConnection")]
-		Guid GetConnection(Guid transactionId);
+		ConnectionId GetConnection(Guid transactionId);
 		[OperationContract]
 		IsolationLevel GetIsolationLevel(Guid transactionId);
 

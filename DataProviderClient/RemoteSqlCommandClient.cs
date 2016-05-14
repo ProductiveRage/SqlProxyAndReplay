@@ -77,7 +77,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				var connectionId = _command.GetConnection(_commandId);
 				if (connectionId == null)
 					return null;
-				return new RemoteSqlConnectionClient(_connection, _command, _transaction, _reader, connectionId.Value);
+				return new RemoteSqlConnectionClient(_connection, _command, _transaction, _reader, connectionId);
 			}
 			set
 			{

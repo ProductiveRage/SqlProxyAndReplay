@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.ServiceModel;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 {
@@ -8,32 +9,32 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 	public interface IRemoteSqlConnection
 	{
 		[OperationContract]
-		Guid GetNewConnectionId();
+		ConnectionId GetNewConnectionId();
 
 		[OperationContract]
-		string GetConnectionString(Guid connectionId);
+		string GetConnectionString(ConnectionId connectionId);
 		[OperationContract]
-		void SetConnectionString(Guid connectionId, string value);
+		void SetConnectionString(ConnectionId connectionId, string value);
 		[OperationContract]
-		int GetConnectionTimeout(Guid connectionId);
+		int GetConnectionTimeout(ConnectionId connectionId);
 		[OperationContract]
-		string GetDatabase(Guid connectionId);
+		string GetDatabase(ConnectionId connectionId);
 		[OperationContract]
-		ConnectionState GetState(Guid connectionId);
+		ConnectionState GetState(ConnectionId connectionId);
 
 		[OperationContract]
-		void ChangeDatabase(Guid connectionId, string databaseName);
+		void ChangeDatabase(ConnectionId connectionId, string databaseName);
 
 		[OperationContract]
-		void Open(Guid connectionId);
+		void Open(ConnectionId connectionId);
 		[OperationContract(Name = "CloseConnection")]
-		void Close(Guid connectionId);
+		void Close(ConnectionId connectionId);
 		[OperationContract(Name = "DisposeConnection")]
-		void Dispose(Guid connectionId);
+		void Dispose(ConnectionId connectionId);
 
 		[OperationContract(Name = "BeginTransactionWithDefaultIsolationLevel")]
-		Guid BeginTransaction(Guid connectionId);
+		Guid BeginTransaction(ConnectionId connectionId);
 		[OperationContract]
-		Guid BeginTransaction(Guid connectionId, IsolationLevel il);
+		Guid BeginTransaction(ConnectionId connectionId, IsolationLevel il);
 	}
 }

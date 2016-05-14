@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public Guid GetConnection(Guid transactionId)
+		public ConnectionId GetConnection(Guid transactionId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
