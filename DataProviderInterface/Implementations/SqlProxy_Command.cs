@@ -10,9 +10,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	{
 		public CommandId GetNewCommandId(ConnectionId connectionId)
 		{
-			if (connectionId == null)
-				throw new ArgumentNullException(nameof(connectionId));
-
 			return _commandStore.Add(new SqlCommand
 			{
 				Connection = _connectionStore.Get(connectionId)
@@ -28,7 +25,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public CommandType GetCommandType(CommandId commandId) { return _commandStore.Get(commandId).CommandType; }
 		public void SetCommandType(CommandId commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
 
-		ConnectionId IRemoteSqlCommand.GetConnection(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
+		ConnectionId? IRemoteSqlCommand.GetConnection(CommandId commandId) // TODO: Use typed ids to avoid explicitly-implementing interface methods?
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
@@ -38,13 +35,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new Exception("All connnections should be of type SqlConnection, but this one is \"" + command.Connection.GetType() + "\")");
 			return _connectionStore.GetIdFor(sqlConnection);
 		}
-		public void SetConnection(CommandId commandId, ConnectionId optionalConnectionId)
+		public void SetConnection(CommandId commandId, ConnectionId? connectionId)
 		{
 			var command = _commandStore.Get(commandId);
-			if (optionalConnectionId == null)
+			if (connectionId == null)
 				command.Connection = null;
 			else
-				command.Connection = _connectionStore.Get(optionalConnectionId);
+				command.Connection = _connectionStore.Get(connectionId.Value);
 		}
 
 		public IDbDataParameter CreateParameter()
@@ -57,7 +54,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			throw new NotImplementedException(); // TODO
 		}
 
-		public TransactionId GetTransaction(CommandId commandId)
+		public TransactionId? GetTransaction(CommandId commandId)
 		{
 			var command = _commandStore.Get(commandId);
 			if (command.Transaction == null)
@@ -68,13 +65,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			return _transactionStore.GetIdFor(sqlTransaction);
 		}
 
-		public void SetTransaction(CommandId commandId, TransactionId optionalTransactionId)
+		public void SetTransaction(CommandId commandId, TransactionId? transactionId)
 		{
 			var command = _commandStore.Get(commandId);
-			if (optionalTransactionId == null)
+			if (transactionId == null)
 				command.Transaction = null;
 			else
-				command.Transaction = _transactionStore.Get(optionalTransactionId);
+				command.Transaction = _transactionStore.Get(transactionId.Value);
 		}
 
 		public UpdateRowSource GetUpdatedRowSource(CommandId commandId) { return _commandStore.Get(commandId).UpdatedRowSource; }

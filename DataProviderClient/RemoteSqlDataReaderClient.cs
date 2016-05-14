@@ -14,9 +14,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		{
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
-			if (readerId == null)
-				throw new ArgumentNullException(nameof(readerId));
-
+			
 			_reader = reader;
 			_readerId = readerId;
 			_disposed = false;

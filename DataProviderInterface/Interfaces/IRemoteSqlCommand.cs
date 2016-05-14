@@ -28,9 +28,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		void SetCommandType(CommandId commandId, CommandType value);
 
 		[OperationContract(Name = "GetCommandConnection")]
-		ConnectionId GetConnection(CommandId commandId);
+		ConnectionId? GetConnection(CommandId commandId);
 		[OperationContract(Name = "SetCommandConnection")]
-		void SetConnection(CommandId commandId, ConnectionId optionalConnectionId);
+		void SetConnection(CommandId commandId, ConnectionId? connectionId);
 
 		/* TODO
 		[OperationContract]
@@ -40,9 +40,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		*/
 
 		[OperationContract]
-		TransactionId GetTransaction(CommandId commandId);
+		TransactionId? GetTransaction(CommandId commandId);
 		[OperationContract]
-		void SetTransaction(CommandId commandId, TransactionId optionalTransactionId);
+		void SetTransaction(CommandId commandId, TransactionId? transactionId);
 		[OperationContract]
 		UpdateRowSource GetUpdatedRowSource(CommandId commandId);
 		[OperationContract]
