@@ -28,12 +28,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		[OperationContract(Name = "SetCommandConnection")]
 		void SetConnection(CommandId commandId, ConnectionId? connectionId);
 
-		/* TODO
 		[OperationContract]
-		IDbDataParameter CreateParameter(); // TODO: Wrap
-		[OperationContract]
-		IRemoteDataParameterCollection GetParameters();
-		*/
+		ParameterId CreateParameter(CommandId commandId);
 
 		[OperationContract]
 		TransactionId? GetTransaction(CommandId commandId);

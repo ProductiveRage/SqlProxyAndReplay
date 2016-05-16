@@ -50,19 +50,21 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			_disposed = true;
 		}
 
-		public IDbConnection GetConnection()
+		public RemoteSqlConnectionClient GetConnection()
 		{
 			ThrowIfDisposed();
 			return new RemoteSqlConnectionClient(
 				connection: _proxy,
 				command: _proxy,
 				transaction: _proxy,
+				parameters: _proxy,
+				parameter: _proxy,
 				reader: _proxy,
 				connectionId: _proxy.GetNewConnectionId()
 			);
 		}
 
-		public IDbConnection GetConnection(string connectionString)
+		public RemoteSqlConnectionClient GetConnection(string connectionString)
 		{
 			ThrowIfDisposed();
 			var connection = GetConnection();

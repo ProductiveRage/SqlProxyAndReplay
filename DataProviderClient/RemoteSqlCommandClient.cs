@@ -1,20 +1,28 @@
 ﻿using System;
 using System.Data;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 {
-	internal sealed class RemoteSqlCommandClient : IDbCommand
+	public sealed class RemoteSqlCommandClient : IDbCommand
 	{
 		private readonly IRemoteSqlConnection _connection;
 		private readonly IRemoteSqlCommand _command;
 		private readonly IRemoteSqlTransaction _transaction;
+		private readonly IRemoteSqlParameterSet _parameters;
+		private readonly IRemoteSqlParameter _parameter;
 		private readonly IRemoteSqlDataReader _reader;
 		private readonly CommandId _commandId;
 		private bool _disposed;
-		public RemoteSqlCommandClient(IRemoteSqlConnection connection, IRemoteSqlCommand command, IRemoteSqlTransaction transaction, IRemoteSqlDataReader reader, CommandId commandId)
+		public RemoteSqlCommandClient(
+			IRemoteSqlConnection connection,
+			IRemoteSqlCommand command,
+			IRemoteSqlTransaction transaction,
+			IRemoteSqlParameterSet parameters,
+			IRemoteSqlParameter parameter,
+			IRemoteSqlDataReader reader,
+			CommandId commandId)
 		{
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
@@ -22,14 +30,21 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				throw new ArgumentNullException(nameof(command));
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
+			if (parameters == null)
+				throw new ArgumentNullException(nameof(parameters));
+			if (parameter == null)
+				throw new ArgumentNullException(nameof(parameter));
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
 
 			_connection = connection;
 			_command = command;
 			_transaction = transaction;
-			_reader = reader;
 			_commandId = commandId;
+			_parameters = parameters;
+			_parameter = parameter;
+			_reader = reader;
+			Parameters = new RemoteSqlParameterSetClient(command, parameters, parameter, commandId);
 			_disposed = false;
 		}
 		~RemoteSqlCommandClient()
@@ -78,7 +93,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				var connectionId = _command.GetConnection(_commandId);
 				if (connectionId == null)
 					return null;
-				return new RemoteSqlConnectionClient(_connection, _command, _transaction, _reader, connectionId.Value);
+				return new RemoteSqlConnectionClient(_connection, _command, _transaction, _parameters, _parameter, _reader, connectionId.Value);
 			}
 			set
 			{
@@ -92,14 +107,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			}
 		}
 
-		public IDataParameterCollection Parameters
-		{
-			get
-			{
-				ThrowIfDisposed();
-				throw new NotImplementedException(); // TODO
-			}
-		}
+		public RemoteSqlParameterSetClient Parameters { get; }
+		IDataParameterCollection IDbCommand.Parameters { get { return Parameters; } }
+
 		public IDbTransaction Transaction
 		{
 			get
@@ -108,7 +118,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				var transactionId = _command.GetTransaction(_commandId);
 				if (transactionId == null)
 					return null;
-				return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, transactionId.Value);
+				return new RemoteSqlTransactionClient(_connection, _command, _transaction, _parameters, _parameter, _reader, transactionId.Value);
 			}
 			set
 			{
@@ -127,11 +137,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			get { ThrowIfDisposed(); return _command.GetUpdatedRowSource(_commandId); }
 			set { ThrowIfDisposed(); _command.SetUpdatedRowSource(_commandId, value); }
 		}
-		public IDbDataParameter CreateParameter()
-		{
-			ThrowIfDisposed();
-			throw new NotImplementedException(); // TODO
-		}
+		public IDbDataParameter CreateParameter() { ThrowIfDisposed(); return new RemoteSqlParameterClient(_parameter, _command.CreateParameter(_commandId)); }
 
 		public void Prepare() { ThrowIfDisposed(); _command.Prepare(_commandId); }
 		public void Cancel() { ThrowIfDisposed(); _command.Cancel(_commandId); }

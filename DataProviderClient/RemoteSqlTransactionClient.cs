@@ -10,12 +10,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private readonly IRemoteSqlConnection _connection;
 		private readonly IRemoteSqlCommand _command;
 		private readonly IRemoteSqlTransaction _transaction;
+		private readonly IRemoteSqlParameterSet _parameters;
+		private readonly IRemoteSqlParameter _parameter;
 		private readonly IRemoteSqlDataReader _reader;
 		private bool _disposed;
 		public RemoteSqlTransactionClient(
 			IRemoteSqlConnection connection,
 			IRemoteSqlCommand command,
 			IRemoteSqlTransaction transaction,
+			IRemoteSqlParameterSet parameters,
+			IRemoteSqlParameter parameter,
 			IRemoteSqlDataReader reader,
 			TransactionId transactionId)
 		{
@@ -25,12 +29,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				throw new ArgumentNullException(nameof(command));
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
+			if (parameters == null)
+				throw new ArgumentNullException(nameof(parameters));
+			if (parameter == null)
+				throw new ArgumentNullException(nameof(parameter));
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
 
 			_connection = connection;
 			_command = command;
 			_transaction = transaction;
+			_parameters = parameters;
+			_parameter = parameter;
 			_reader = reader;
 			TransactionId = transactionId;
 			_disposed = false;
@@ -59,7 +69,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public IDbConnection Connection
 		{
-			get { ThrowIfDisposed(); return new RemoteSqlConnectionClient(_connection, _command, _transaction, _reader, _transaction.GetConnection(TransactionId)); }
+			get { ThrowIfDisposed(); return new RemoteSqlConnectionClient(_connection, _command, _transaction, _parameters, _parameter, _reader, _transaction.GetConnection(TransactionId)); }
 		}
 		public IsolationLevel IsolationLevel
 		{

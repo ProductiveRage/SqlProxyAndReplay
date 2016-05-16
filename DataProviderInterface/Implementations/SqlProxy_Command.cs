@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
@@ -36,14 +37,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				command.Connection = _connectionStore.Get(connectionId.Value);
 		}
 
-		public IDbDataParameter CreateParameter()
+		public ParameterId CreateParameter(CommandId commandId)
 		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public IRemoteDataParameterCollection GetParameters()
-		{
-			throw new NotImplementedException(); // TODO
+			// Note: We need to track created parameters and tidy them up when the command is disposed (because parameters are not disposable and so
+			// we won't be told via a Dispose call when parameters are no longer required; we know that they're no longer required when the command
+			// that owns them is disposed, though)
+			var parameterId = _parameterStore.Add(_commandStore.Get(commandId).CreateParameter());
+			_parametersToTidy.AddOrUpdate(
+				commandId,
+				addValueFactory: key => { var value = new ConcurrentBag<ParameterId>(); value.Add(parameterId); return value; },
+				updateValueFactory: (key, currentValue) => { currentValue.Add(parameterId); return currentValue; }
+			);
+			return parameterId;
 		}
 
 		public TransactionId? GetTransaction(CommandId commandId)
@@ -79,7 +84,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		}
 		public void Dispose(CommandId commandId)
 		{
+			// Parameters are not individually disposed of when use of them is complete - instead, the entries from the parameter store must
+			// be removed when the command that created them is disposed of
 			_commandStore.Get(commandId).Dispose();
+			ConcurrentBag<ParameterId> parametersToTidy;
+			if (!_parametersToTidy.TryRemove(commandId, out parametersToTidy))
+				throw new Exception("Unable to locate parametersToTidy for command being disposed");
+			foreach (var parameterId in parametersToTidy)
+				_parameterStore.Remove(parameterId);
 			_commandStore.Remove(commandId);
 		}
 

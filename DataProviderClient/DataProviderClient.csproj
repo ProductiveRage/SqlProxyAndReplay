@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RemoteSqlClient.cs" />
+    <Compile Include="RemoteSqlParameterSetClient.cs" />
+    <Compile Include="RemoteSqlParameterClient.cs" />
     <Compile Include="RemoteSqlDataReaderClient.cs" />
     <Compile Include="RemoteSqlTransactionClient.cs" />
     <Compile Include="RemoteSqlCommandClient.cs" />

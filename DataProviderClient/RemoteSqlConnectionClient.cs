@@ -5,14 +5,23 @@ using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 {
-	internal sealed class RemoteSqlConnectionClient : IDbConnection
+	public sealed class RemoteSqlConnectionClient : IDbConnection
 	{
 		private readonly IRemoteSqlConnection _connection;
 		private readonly IRemoteSqlCommand _command;
 		private readonly IRemoteSqlTransaction _transaction;
+		private readonly IRemoteSqlParameterSet _parameters;
+		private readonly IRemoteSqlParameter _parameter;
 		private readonly IRemoteSqlDataReader _reader;
 		private bool _disposed;
-		public RemoteSqlConnectionClient(IRemoteSqlConnection connection, IRemoteSqlCommand command, IRemoteSqlTransaction transaction, IRemoteSqlDataReader reader, ConnectionId connectionId)
+		public RemoteSqlConnectionClient(
+			IRemoteSqlConnection connection,
+			IRemoteSqlCommand command,
+			IRemoteSqlTransaction transaction,
+			IRemoteSqlParameterSet parameters,
+			IRemoteSqlParameter parameter,
+			IRemoteSqlDataReader reader,
+			ConnectionId connectionId)
 		{
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
@@ -20,12 +29,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				throw new ArgumentNullException(nameof(command));
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
+			if (parameters == null)
+				throw new ArgumentNullException(nameof(parameters));
+			if (parameter == null)
+				throw new ArgumentNullException(nameof(parameter));
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
 
 			_connection = connection;
 			_command = command;
 			_transaction = transaction;
+			_parameters = parameters;
+			_parameter = parameter;
 			_reader = reader;
 			ConnectionId = connectionId;
 			_disposed = false;
@@ -50,7 +65,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			_disposed = true;
 		}
 
-		public ConnectionId ConnectionId { get; }
+		internal ConnectionId ConnectionId { get; }
 
 		public string ConnectionString
 		{
@@ -76,10 +91,44 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public void Open() { ThrowIfDisposed(); _connection.Open(ConnectionId); }
 		public void Close() { ThrowIfDisposed(); _connection.Close(ConnectionId); }
-		public IDbCommand CreateCommand() { ThrowIfDisposed(); return new RemoteSqlCommandClient(_connection, _command, _transaction, _reader, _connection.CreateCommand(ConnectionId)); }
+		public RemoteSqlCommandClient CreateCommand()
+		{
+			ThrowIfDisposed();
+			return new RemoteSqlCommandClient(_connection, _command, _transaction, _parameters, _parameter, _reader, _connection.CreateCommand(ConnectionId));
+		}
+		// This method isn't part of IDbConnection but it's very convenient, so I'm including it here
+		public RemoteSqlCommandClient CreateCommand(string commandText, IDbTransaction transaction = null, CommandType commandType = CommandType.Text)
+		{
+			if (string.IsNullOrWhiteSpace(commandText))
+				throw new ArgumentException("Null/blank " + nameof(commandText) + " specified");
+			RemoteSqlTransactionClient remoteSqlTransaction;
+			if (transaction == null)
+				remoteSqlTransaction = null;
+			else
+			{
+				remoteSqlTransaction = transaction as RemoteSqlTransactionClient;
+				if (remoteSqlTransaction == null)
+					throw new ArgumentException($"Transaction must be a {typeof(RemoteSqlTransactionClient)}");
+			}
+			var command = CreateCommand();
+			command.CommandText = commandText;
+			command.CommandType = commandType;
+			if (remoteSqlTransaction != null)
+				command.Transaction = remoteSqlTransaction;
+			return command;
+		}
+		IDbCommand IDbConnection.CreateCommand() { return CreateCommand(); }
 
-		public IDbTransaction BeginTransaction() { ThrowIfDisposed(); return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, _connection.BeginTransaction(ConnectionId)); }
-		public IDbTransaction BeginTransaction(IsolationLevel il) { ThrowIfDisposed(); return new RemoteSqlTransactionClient(_connection, _command, _transaction, _reader, _connection.BeginTransaction(ConnectionId, il)); }
+		public IDbTransaction BeginTransaction()
+		{
+			ThrowIfDisposed();
+			return new RemoteSqlTransactionClient(_connection, _command, _transaction, _parameters, _parameter, _reader, _connection.BeginTransaction(ConnectionId));
+		}
+		public IDbTransaction BeginTransaction(IsolationLevel il)
+		{
+			ThrowIfDisposed();
+			return new RemoteSqlTransactionClient(_connection, _command, _transaction, _parameters, _parameter, _reader, _connection.BeginTransaction(ConnectionId, il));
+		}
 
 		private void ThrowIfDisposed()
 		{
