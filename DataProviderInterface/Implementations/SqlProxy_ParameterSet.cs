@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -53,6 +54,19 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		{
 			_commandStore.Get(commandId).Parameters.Clear();
 			_parametersToTidy.RemoveAnyParametersFor(commandId);
+		}
+
+		public bool Contains(CommandId commandId, ParameterId parameterId)
+		{
+			return !_parametersToTidy.IsRecordedForCommand(parameterId, commandId);
+		}
+		public bool Contains(CommandId commandId, string parameterName)
+		{
+			if (parameterName == null)
+				throw new ArgumentNullException(nameof(parameterName));
+			return _parametersToTidy.GetParameters(commandId)
+				.Select(parameterId => _parameterStore.Get(parameterId))
+				.Any(parameter => parameter.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

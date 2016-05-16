@@ -36,11 +36,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			{
 				// Note: The type of this property is object (and not something more specific, like IDbDataParameter) because IDataParameterCollection implements
 				// IList, which has this property it has to throw at runtime if an unacceptable value is provided
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-				var parameter = value as RemoteSqlParameterClient;
-				if (parameter == null)
-					throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+				var parameter = GetAsRemoteSqlParameterClient(value);
 				if (!parameter.CommandId.Equals(_commandId))
 				{
 					// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
@@ -61,11 +57,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				// IList, which has this property it has to throw at runtime if an unacceptable value is provided
 				if (parameterName == null)
 					throw new ArgumentNullException(nameof(parameterName));
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-				var parameter = value as RemoteSqlParameterClient;
-				if (parameter == null)
-					throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+				var parameter = GetAsRemoteSqlParameterClient(value);
 				if (!parameter.CommandId.Equals(_commandId))
 				{
 					// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
@@ -86,11 +78,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		{
 			// Note: This method has this signature as IDataParameterCollection implements IList, which has this method (which is why value does not have
 			// a more specific type - it has to throw at runtime if an unacceptable value is provided)
-			if (value == null)
-				throw new ArgumentNullException(nameof(value));
-			var parameter = value as RemoteSqlParameterClient;
-			if (parameter == null)
-				throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+			var parameter = GetAsRemoteSqlParameterClient(value);
 			if (!parameter.CommandId.Equals(_commandId))
 			{
 				// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
@@ -118,12 +106,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public bool Contains(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			var parameter = GetAsRemoteSqlParameterClient(value);
+			return _parameters.Contains(_commandId, parameter.ParameterId);
 		}
 
 		public bool Contains(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			if (parameterName == null)
+				throw new ArgumentNullException(nameof(parameterName));
+			return _parameters.Contains(_commandId, parameterName);
 		}
 
 		public void CopyTo(Array array, int index)
@@ -169,6 +160,19 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public bool IsReadOnly { get { return false; } }
 		public bool IsSynchronized { get { return false; } } // This isn't hugely important since this approach to thread-safety is obsolete now
 		public object SyncRoot { get; } // This isn't hugely important since this approach to thread-safety is obsolete now
+
+		/// <summary>
+		/// This will throw an exception for a null value or one that is not a RemoteSqlParameterClient
+		/// </summary>
+		private static RemoteSqlParameterClient GetAsRemoteSqlParameterClient(object value)
+		{
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			var parameter = value as RemoteSqlParameterClient;
+			if (parameter == null)
+				throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+			return parameter;
+		}
 
 		private sealed class RemoteSqlParameterSetClientEnumerator : IEnumerator
 		{

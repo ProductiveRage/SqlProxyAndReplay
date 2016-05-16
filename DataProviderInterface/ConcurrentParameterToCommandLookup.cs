@@ -31,6 +31,17 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 			return parameters.Enumerate().Any(value => value.Equals(parameterId));
 		}
 
+		/// <summary>
+		/// This will never return null, it will return an empty set if there are no parameters recorded against the command
+		/// </summary>
+		public IEnumerable<ParameterId> GetParameters(CommandId commandId)
+		{
+			SimpleImmutableList<ParameterId> parameters;
+			if (!_data.TryGetValue(commandId, out parameters))
+				return Enumerable.Empty<ParameterId>();
+			return parameters.Enumerate();
+		}
+
 		public void Record(CommandId commandId, ParameterId parameterId)
 		{
 			_data.AddOrUpdate(

@@ -25,5 +25,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 
 		[OperationContract]
 		void Clear(CommandId commandId);
+		[OperationContract(Name = "ContainsParameterWithId")]
+
+		bool Contains(CommandId commandId, ParameterId parameterId);
+		[OperationContract(Name = "ContainsParameterWithName")]
+		bool Contains(CommandId commandId, string parameterName);
 	}
 }
