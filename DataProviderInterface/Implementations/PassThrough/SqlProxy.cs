@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough
 {
+	// InstanceContextMode.Single is required in order to initialise a ServiceHost with a singleton reference, which is the easiest way to instantiate
+	// a service class without having to use a parameterless-constructor (since this class is designed to deal with all connections - we don't need one
+	// instance per request, for example - a singleton instance is what we want)
+	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public sealed partial class SqlProxy : ISqlProxy
 	{
 		private readonly Store<ConnectionId, SqlConnection> _connectionStore;
@@ -42,11 +47,5 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			// the parameter store must be removed when the command that created them is disposed. The information to do that is recorded here.
 			_parametersToTidy = new ConcurrentParameterToCommandLookup();
 		}
-		public SqlProxy() : this(
-			DefaultStores.ConnectionStore,
-			DefaultStores.CommandStore,
-			DefaultStores.TransactionStore,
-			DefaultStores.ParameterStore,
-			DefaultStores.ReaderStore) { }
 	}
 }
