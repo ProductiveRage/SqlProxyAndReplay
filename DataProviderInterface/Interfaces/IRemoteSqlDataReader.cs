@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
@@ -64,6 +65,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		string GetName(DataReaderId readerId, int i);
 		[OperationContract]
 		int GetOrdinal(DataReaderId readerId, string name);
+		[OperationContract]
+		DataTable GetSchemaTable(DataReaderId readerId);
 		[OperationContract]
 		string GetString(DataReaderId readerId, int i);
 		[OperationContract]

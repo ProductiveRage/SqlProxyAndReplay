@@ -103,7 +103,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public long GetInt64(int i) { ThrowIfDisposed(); return _reader.GetInt64(_readerId, i); }
 		public string GetName(int i) { ThrowIfDisposed(); return _reader.GetName(_readerId, i); }
 		public int GetOrdinal(string name) { ThrowIfDisposed(); return _reader.GetOrdinal(_readerId, name); }
-		public DataTable GetSchemaTable() { ThrowIfDisposed(); throw new NotImplementedException(); } // TODO
+		public DataTable GetSchemaTable() { ThrowIfDisposed(); return _reader.GetSchemaTable(_readerId); }
 		public string GetString(int i) { ThrowIfDisposed(); return _reader.GetString(_readerId, i); }
 		public object GetValue(int i) { ThrowIfDisposed(); return _reader.GetValue(_readerId, i); }
 		public int GetValues(object[] values) { ThrowIfDisposed(); return _reader.GetValues(_readerId, values); }

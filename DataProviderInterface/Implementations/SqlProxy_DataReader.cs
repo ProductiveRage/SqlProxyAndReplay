@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -66,6 +67,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public long GetInt64(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetInt64(i); }
 		public string GetName(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetName(i); }
 		public int GetOrdinal(DataReaderId readerId, string name) { return _readerStore.Get(readerId).GetOrdinal(name); }
+		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).GetSchemaTable(); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
 		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
 		public int GetValues(DataReaderId readerId, object[] values) { return _readerStore.Get(readerId).GetValues(values); }
