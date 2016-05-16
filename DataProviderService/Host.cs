@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -18,13 +17,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 
 			try
 			{
-				_host = new ServiceHost(new SqlProxy(
-					DefaultStores.ConnectionStore,
-					DefaultStores.CommandStore,
-					DefaultStores.TransactionStore,
-					DefaultStores.ParameterStore,
-					DefaultStores.ReaderStore
-				));
+				_host = new ServiceHost(new SqlProxy());
 				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
