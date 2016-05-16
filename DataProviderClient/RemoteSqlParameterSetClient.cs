@@ -118,49 +118,49 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public bool Contains(object value)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public bool Contains(string parameterName)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public void CopyTo(Array array, int index)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public IEnumerator GetEnumerator() { return new RemoteSqlParameterSetClientEnumerator(this); }
 
 		public int IndexOf(object value)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public int IndexOf(string parameterName)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public void Insert(int index, object value)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public void Remove(object value)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public void RemoveAt(int index)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		public void RemoveAt(string parameterName)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException(); // TODO
 		}
 
 		// These properties are only required to the various interfaces that IDataParameterCollection implements (IList and ICollection), they're not very
