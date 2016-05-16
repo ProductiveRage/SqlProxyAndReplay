@@ -137,7 +137,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			get { ThrowIfDisposed(); return _command.GetUpdatedRowSource(_commandId); }
 			set { ThrowIfDisposed(); _command.SetUpdatedRowSource(_commandId, value); }
 		}
-		public IDbDataParameter CreateParameter() { ThrowIfDisposed(); return new RemoteSqlParameterClient(_parameter, _command.CreateParameter(_commandId)); }
+		public IDbDataParameter CreateParameter() { ThrowIfDisposed(); return new RemoteSqlParameterClient(_parameter, _command.CreateParameter(_commandId), _commandId); }
 
 		public void Prepare() { ThrowIfDisposed(); _command.Prepare(_commandId); }
 		public void Cancel() { ThrowIfDisposed(); _command.Cancel(_commandId); }

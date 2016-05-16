@@ -8,16 +8,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 	internal sealed class RemoteSqlParameterClient : IDbDataParameter
 	{
 		private readonly IRemoteSqlParameter _parameter;
-		public RemoteSqlParameterClient(IRemoteSqlParameter parameter, ParameterId parameterId)
+		public RemoteSqlParameterClient(IRemoteSqlParameter parameter, ParameterId parameterId, CommandId commandId)
 		{
 			if (parameter == null)
 				throw new ArgumentNullException(nameof(parameter));
 
 			_parameter = parameter;
 			ParameterId = parameterId;
+			CommandId = commandId;
 		}
 
 		public ParameterId ParameterId { get; }
+		public CommandId CommandId { get; }
 
 		public DbType DbType
 		{

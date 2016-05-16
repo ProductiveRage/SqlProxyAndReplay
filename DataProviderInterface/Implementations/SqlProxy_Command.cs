@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
@@ -43,11 +42,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			// we won't be told via a Dispose call when parameters are no longer required; we know that they're no longer required when the command
 			// that owns them is disposed, though)
 			var parameterId = _parameterStore.Add(_commandStore.Get(commandId).CreateParameter());
-			_parametersToTidy.AddOrUpdate(
-				commandId,
-				addValueFactory: key => { var value = new ConcurrentBag<ParameterId>(); value.Add(parameterId); return value; },
-				updateValueFactory: (key, currentValue) => { currentValue.Add(parameterId); return currentValue; }
-			);
+			_parametersToTidy.Record(commandId, parameterId);
 			return parameterId;
 		}
 
@@ -87,11 +82,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			// Parameters are not individually disposed of when use of them is complete - instead, the entries from the parameter store must
 			// be removed when the command that created them is disposed of
 			_commandStore.Get(commandId).Dispose();
-			ConcurrentBag<ParameterId> parametersToTidy;
-			if (!_parametersToTidy.TryRemove(commandId, out parametersToTidy))
-				throw new Exception("Unable to locate parametersToTidy for command being disposed");
-			foreach (var parameterId in parametersToTidy)
-				_parameterStore.Remove(parameterId);
+			_parametersToTidy.RemoveAnyParametersFor(
+				commandId,
+				parameterId => _parameterStore.Remove(parameterId)
+			);
 			_commandStore.Remove(commandId);
 		}
 

@@ -29,74 +29,75 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			SyncRoot = new object();
 		}
 
-		// TODO: Implement all these..
 		public object this[int index]
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
+			get { return new RemoteSqlParameterClient(_parameter, _parameters.GetParameterByIndex(_commandId, index), _commandId); }
 			set
 			{
-				throw new NotImplementedException();
+				// Note: The type of this property is object (and not something more specific, like IDbDataParameter) because IDataParameterCollection implements
+				// IList, which has this property it has to throw at runtime if an unacceptable value is provided
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+				var parameter = value as RemoteSqlParameterClient;
+				if (parameter == null)
+					throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+				if (!parameter.CommandId.Equals(_commandId))
+				{
+					// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+					// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+					// by any real code, even if it's possible with the SqlCommand class)
+					throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+				}
+				_parameters.SetParameterByIndex(_commandId, index, parameter.ParameterId);
 			}
 		}
 
 		public object this[string parameterName]
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
+			get { return new RemoteSqlParameterClient(_parameter, _parameters.GetParameterByName(_commandId, parameterName), _commandId); }
 			set
 			{
-				throw new NotImplementedException();
+				// Note: The type of this property is object (and not something more specific, like IDbDataParameter) because IDataParameterCollection implements
+				// IList, which has this property it has to throw at runtime if an unacceptable value is provided
+				if (parameterName == null)
+					throw new ArgumentNullException(nameof(parameterName));
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+				var parameter = value as RemoteSqlParameterClient;
+				if (parameter == null)
+					throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+				if (!parameter.CommandId.Equals(_commandId))
+				{
+					// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+					// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+					// by any real code, even if it's possible with the SqlCommand class)
+					throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+				}
+				_parameters.SetParameterByName(_commandId, parameterName, parameter.ParameterId);
 			}
 		}
 
 		public int Count
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return _parameters.GetCount(_commandId); }
 		}
-
-		public bool IsFixedSize
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public bool IsReadOnly
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public bool IsSynchronized
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public object SyncRoot { get; }
 
 		public int Add(object value)
 		{
+			// Note: This method has this signature as IDataParameterCollection implements IList, which has this method (which is why value does not have
+			// a more specific type - it has to throw at runtime if an unacceptable value is provided)
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 			var parameter = value as RemoteSqlParameterClient;
 			if (parameter == null)
 				throw new ArgumentException($"must be an RemoteSqlParameterClient implementation, not a {value.GetType()}", nameof(value));
+			if (!parameter.CommandId.Equals(_commandId))
+			{
+				// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+				// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+				// by any real code, even if it's possible with the SqlCommand class)
+				throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+			}
 			return _parameters.Add(_commandId, parameter.ParameterId);
 		}
 
@@ -106,17 +107,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			if (string.IsNullOrWhiteSpace(parameterName))
 				throw new ArgumentException($"Null/blank {nameof(parameterName)} specified");
 
-			var parameter = new RemoteSqlParameterClient(_parameter, _command.CreateParameter(_commandId));
+			var parameter = new RemoteSqlParameterClient(_parameter, _command.CreateParameter(_commandId), _commandId);
 			parameter.ParameterName = parameterName;
 			parameter.Value = value;
 			Add(parameter);
 			return parameter;
 		}
 
-		public void Clear()
-		{
-			throw new NotImplementedException();
-		}
+		public void Clear() { _parameters.Clear(_commandId); }
 
 		public bool Contains(object value)
 		{
@@ -133,10 +131,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			throw new NotImplementedException();
 		}
 
-		public IEnumerator GetEnumerator()
-		{
-			throw new NotImplementedException();
-		}
+		public IEnumerator GetEnumerator() { return new RemoteSqlParameterSetClientEnumerator(this); }
 
 		public int IndexOf(object value)
 		{
@@ -166,6 +161,51 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public void RemoveAt(string parameterName)
 		{
 			throw new NotImplementedException();
+		}
+
+		// These properties are only required to the various interfaces that IDataParameterCollection implements (IList and ICollection), they're not very
+		// important or relevant to the implementation of a parameter set
+		public bool IsFixedSize { get { return false; } }
+		public bool IsReadOnly { get { return false; } }
+		public bool IsSynchronized { get { return false; } } // This isn't hugely important since this approach to thread-safety is obsolete now
+		public object SyncRoot { get; } // This isn't hugely important since this approach to thread-safety is obsolete now
+
+		private sealed class RemoteSqlParameterSetClientEnumerator : IEnumerator
+		{
+			private readonly RemoteSqlParameterSetClient _parameters;
+			private int _index;
+			public RemoteSqlParameterSetClientEnumerator(RemoteSqlParameterSetClient parameters)
+			{
+				if (parameters == null)
+					throw new ArgumentNullException(nameof(parameters));
+				_parameters = parameters;
+				_index = -1;
+			}
+
+			public object Current
+			{
+				get
+				{
+					if (_index == -1)
+						throw new InvalidOperationException("Enumeration has not started. Call MoveNext.");
+					if (_index >= _parameters.Count)
+						throw new InvalidOperationException("Enumeration already finished.");
+					return _parameters[_index];
+				}
+			}
+
+			public bool MoveNext()
+			{
+				if (_index >= _parameters.Count)
+					return false;
+				_index++;
+				return _index < _parameters.Count;
+			}
+
+			public void Reset()
+			{
+				_index = -1;
+			}
 		}
 	}
 }

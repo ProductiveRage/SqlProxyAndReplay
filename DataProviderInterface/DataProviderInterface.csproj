@@ -56,6 +56,7 @@
     <Compile Include="Interfaces\ISqlProxy.cs" />
     <Compile Include="Implementations\SqlProxy.cs" />
     <Compile Include="Implementations\SqlProxy_DataReader.cs" />
+    <Compile Include="ConcurrentParameterToCommandLookup.cs" />
     <Compile Include="Store.cs" />
     <Compile Include="Implementations\SqlProxy_Transaction.cs" />
     <Compile Include="Interfaces\IRemoteSqlTransaction.cs" />
