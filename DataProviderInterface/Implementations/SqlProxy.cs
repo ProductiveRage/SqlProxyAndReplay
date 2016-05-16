@@ -40,6 +40,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 			// Parameters are not disposed of individually (unlike connections, commands, transactions and readers) - instead, the parameters in
 			// the parameter store must be removed when the command that created them is disposed. The information to do that is recorded here.
+			_parametersToTidy = new ConcurrentParameterToCommandLookup();
 		}
 		public SqlProxy() : this(
 			DefaultStores.ConnectionStore,
