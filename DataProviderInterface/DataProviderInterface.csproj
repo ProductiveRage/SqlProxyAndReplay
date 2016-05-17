@@ -48,6 +48,13 @@
     <Compile Include="IDs\ConnectionId.cs" />
     <Compile Include="Implementations\PassThrough\SqlProxy_ParameterSet.cs" />
     <Compile Include="Implementations\PassThrough\SqlProxy_Parameter.cs" />
+    <Compile Include="Implementations\Replay\QueryCriteria.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayerTransaction.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayerParameter.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayerParameterCollection.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayerCommand.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayerConnection.cs" />
+    <Compile Include="Implementations\Replay\SqlReplayer.cs" />
     <Compile Include="Interfaces\IRemoteSqlParameter.cs" />
     <Compile Include="Interfaces\IRemoteSqlParameterSet.cs" />
     <Compile Include="InvalidIdException.cs" />
