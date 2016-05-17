@@ -49,12 +49,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			if (_disposed)
 				return;
 
-			if (disposing)
-			{
-				// Note: This waits until clients have disconnect
-				if (_host != null)
-					((IDisposable)_host).Dispose();
-			}
+			// Note should only tidy up managed objects if disposing is true - but the host reference wraps unmanaged resources (so we're only tidying up unmanaged
+			// resources here and so we don't need to check whether disposing is true or not)
+			if (_host != null)
+				((IDisposable)_host).Dispose(); // Note: This waits until clients have disconnect
 
 			_disposed = true;
 		}
