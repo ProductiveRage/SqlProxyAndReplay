@@ -50,6 +50,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DataProviderInterface\DataProviderInterface.csproj">
+      <Project>{7c0cd613-62a0-46d6-8912-8ef080da0e4b}</Project>
+      <Name>DataProviderInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataProviderService\DataProviderService.csproj">
       <Project>{3c08ad2a-f6f3-41f4-ad8e-d703e59b55db}</Project>
       <Name>DataProviderService</Name>

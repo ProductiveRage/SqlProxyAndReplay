@@ -11,6 +11,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 		{
 			// Note: Need the DataProviderServiceTester project to be running in order for these connections to be handled
 			var proxyEndPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
+			var replayEndPoint = new Uri("net.tcp://localhost:5001/SqlProxy");
 			var connectionString =
 				new SqlConnectionStringBuilder
 				{
@@ -72,6 +73,44 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					using (var transaction = conn.BeginTransaction())
 					{
 						Console.WriteLine("Dapper via proxy..");
+						var products = conn.Query<Product>(sql, new { @name = "Bob" }, transaction: transaction);
+						foreach (var product in products)
+							Console.WriteLine(product.ProductName);
+						Console.WriteLine();
+					}
+				}
+			}
+			using (var connCreator = new RemoteSqlClient(replayEndPoint))
+			{
+				using (var conn = connCreator.GetConnection(connectionString))
+				{
+					conn.Open();
+					using (var transaction = conn.BeginTransaction())
+					{
+						using (var cmd = conn.CreateCommand(sql, transaction))
+						{
+							cmd.Parameters.AddWithValue("@name", "Bob");
+							using (var rdr = cmd.ExecuteReader())
+							{
+								Console.WriteLine("Raw SQL via replay proxy..");
+								while (rdr.Read())
+								{
+									Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
+								}
+								Console.WriteLine();
+							}
+						}
+					}
+				}
+			}
+			using (var connCreator = new RemoteSqlClient(replayEndPoint))
+			{
+				using (var conn = connCreator.GetConnection(connectionString))
+				{
+					conn.Open();
+					using (var transaction = conn.BeginTransaction())
+					{
+						Console.WriteLine("Dapper via replay proxy..");
 						var products = conn.Query<Product>(sql, new { @name = "Bob" }, transaction: transaction);
 						foreach (var product in products)
 							Console.WriteLine(product.ProductName);
