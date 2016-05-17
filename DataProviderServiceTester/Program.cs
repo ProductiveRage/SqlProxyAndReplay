@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderService;
@@ -9,6 +13,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 {
 	class Program
 	{
+		private readonly static ConcurrentDictionary<QueryCriteria, byte[]> _serialisedQueryAndResultsCache = new ConcurrentDictionary<QueryCriteria, byte[]>();
+
 		static void Main(string[] args)
 		{
 			var proxyEndPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
@@ -26,33 +32,12 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 			Console.ReadLine();
 		}
 
-
 		private static void QueryRecorder(QueryCriteria query)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
 
-			Console.WriteLine("LIVE: " + query.CommandText); // TODO
-		}
-
-		private static void ScalarQueryRecorder(QueryCriteria query)
-		{
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			Console.WriteLine("LIVE: " + query.CommandText); // TODO
-		}
-
-		private static IDataReader DataRetriever(QueryCriteria query)
-		{
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			// The idea behind the "data retriever" delegate that the SqlReplayer takes as a constructor argument is that there will be a cache of results that data
-			// is returned from but none of that has been fleshed out yet, so this data retriever just takes the data from each query and makes a real database call,
-			// pulling back all of the data into a disconnected DataReader (so that the connection, command, etc.. initialised here can be immediately disposed of so
-			// that only the returned data reader needs to be disposed by the caller).
-			Console.WriteLine("REPLAY: " + query.CommandText); // TODO
+			Console.WriteLine("LIVE[ExecuteReader]: " + query.CommandText);
 			using (var connection = new SqlConnection(query.ConnectionString))
 			{
 				using (var command = GetCommand(connection, query))
@@ -63,11 +48,43 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 						using (var dataAdapter = new SqlDataAdapter(command))
 						{
 							dataAdapter.Fill(dataSet);
-							return dataSet.CreateDataReader();
+							dataSet.RemotingFormat = SerializationFormat.Binary;
+							using (var stream = new MemoryStream())
+							{
+								(new BinaryFormatter()).Serialize(stream, dataSet);
+								_serialisedQueryAndResultsCache.TryAdd(query, stream.ToArray());
+								var hashes = _serialisedQueryAndResultsCache.Keys.Select(x => x.GetHashCode()).ToArray(); // TODO: Remove
+							}
 						}
 					}
 				}
 			}
+		}
+
+		private static void ScalarQueryRecorder(QueryCriteria query)
+		{
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			Console.WriteLine("LIVE[ExecuteScalar]: " + query.CommandText); // TODO
+		}
+
+		private static IDataReader DataRetriever(QueryCriteria query)
+		{
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			Console.WriteLine("REPLAY[ExecuteReader]: " + query.CommandText);
+			byte[] serialisedData;
+			if (!_serialisedQueryAndResultsCache.TryGetValue(query, out serialisedData))
+				return null;
+
+			using (var stream = new MemoryStream(serialisedData))
+			{
+				var deserialisedData = (DataSet)(new BinaryFormatter()).Deserialize(stream);
+				return deserialisedData.CreateDataReader();
+			}
+
 		}
 
 		private static Tuple<object> ScalarDataRetriever(QueryCriteria query)

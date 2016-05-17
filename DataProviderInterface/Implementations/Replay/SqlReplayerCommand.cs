@@ -30,6 +30,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_scalarDataRetriever = scalarDataRetriever;
 			_nonQueryRowCountDataRetriever = nonQueryRowCountDataRetriever;
 			Parameters = new SqlReplayerParameterCollection();
+
+			CommandType = CommandType.Text; // TODO: Explain
 		}
 
 		public string CommandText { get; set; }

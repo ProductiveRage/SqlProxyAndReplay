@@ -4,6 +4,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed class SqlReplayerParameter : IDbDataParameter
 	{
+		private object _value;
+		public SqlReplayerParameter()
+		{
+			Direction = ParameterDirection.Input; // TODO: Explain
+			_value = null;
+		}
+
 		public DbType DbType { get; set; }
 
 		public ParameterDirection Direction { get; set; }
@@ -22,6 +29,20 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public DataRowVersion SourceVersion { get; set; }
 
-		public object Value { get; set; }
+		public object Value
+		{
+			get { return _value; }
+			set
+			{
+				var stringValue = value as string;
+				if (stringValue != null)
+				{
+					DbType = DbType.String; // TODO: Correct?
+					if (Size < stringValue.Length)
+						 Size = stringValue.Length; // TODO: Correct?
+				}
+				_value = value;
+			}
+		}
 	}
 }

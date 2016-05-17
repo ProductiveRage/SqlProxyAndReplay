@@ -87,12 +87,22 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 					return false;
 				return
 					(otherParameter.ParameterName == ParameterName) &&
-					(otherParameter.Value == Value) &&
+					AreValuesEqual(otherParameter.Value, Value) && // TODO: Explain
 					(otherParameter.DbType == DbType) &&
 					(otherParameter.IsNullable == IsNullable) &&
 					(otherParameter.Direction == Direction) &&
 					(otherParameter.Scale == Scale) &&
 					(otherParameter.Size == Size);
+			}
+
+			private static bool AreValuesEqual(object x, object y)
+			{
+				if ((x == null) && (y == null))
+					return true;
+				else if ((x == null) || (y == null))
+					return false;
+				else
+					return x.Equals(y);
 			}
 
 			public override int GetHashCode()

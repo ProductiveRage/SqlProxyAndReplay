@@ -29,7 +29,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 				{
 					using (var cmd = new SqlCommand(sql, conn, transaction))
 					{
-						cmd.Parameters.AddWithValue("@name", "Bob");
+						cmd.Parameters.AddWithValue("name", "Bob");
 						using (var rdr = cmd.ExecuteReader())
 						{
 							Console.WriteLine("From direct SQL call..");
@@ -51,7 +51,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					{
 						using (var cmd = conn.CreateCommand(sql, transaction))
 						{
-							cmd.Parameters.AddWithValue("@name", "Bob");
+							cmd.Parameters.AddWithValue("name", "Bob");
 							using (var rdr = cmd.ExecuteReader())
 							{
 								Console.WriteLine("Raw SQL via proxy..");
@@ -73,7 +73,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					using (var transaction = conn.BeginTransaction())
 					{
 						Console.WriteLine("Dapper via proxy..");
-						var products = conn.Query<Product>(sql, new { @name = "Bob" }, transaction: transaction);
+						var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
 						foreach (var product in products)
 							Console.WriteLine(product.ProductName);
 						Console.WriteLine();
@@ -89,7 +89,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					{
 						using (var cmd = conn.CreateCommand(sql, transaction))
 						{
-							cmd.Parameters.AddWithValue("@name", "Bob");
+							cmd.Parameters.AddWithValue("name", "Bob");
 							using (var rdr = cmd.ExecuteReader())
 							{
 								Console.WriteLine("Raw SQL via replay proxy..");
@@ -111,7 +111,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					using (var transaction = conn.BeginTransaction())
 					{
 						Console.WriteLine("Dapper via replay proxy..");
-						var products = conn.Query<Product>(sql, new { @name = "Bob" }, transaction: transaction);
+						var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
 						foreach (var product in products)
 							Console.WriteLine(product.ProductName);
 						Console.WriteLine();
