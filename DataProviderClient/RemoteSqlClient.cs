@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -9,7 +8,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 	{
 		private ChannelFactory<ISqlProxy> _proxyChannelFactory;
 		private ISqlProxy _proxy;
-		private bool _disposed;
+		private bool _faulted, _disposed;
 		public RemoteSqlClient(Uri endPoint)
 		{
 			if (endPoint == null)
@@ -19,12 +18,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			{
 				_proxyChannelFactory = new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint));
 				_proxy = _proxyChannelFactory.CreateChannel();
+				((ICommunicationObject)_proxy).Faulted += SetFaulted;
+
 			}
 			catch
 			{
 				Dispose(true);
 				throw;
 			}
+			_faulted = false;
 			_disposed = false;
 		}
 		~RemoteSqlClient()
@@ -41,13 +43,31 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			if (_disposed)
 				return;
 
-			if (disposing)
+			// Note should only tidy up managed objects if disposing is true - but the proxy object and the channel factory wrap unmanaged resources
+			// (so we're only tidying up unmanaged resources and so we don't need to check whether disposing is true or not)
+
+			// There is an oddity to be aware of when communicating over a channel - if it enters a "faulted state" (meaning that an exception was thrown)
+			// then an subsequent method calls will fail, including any attempt to Close or Dispose the channel factory. The way to avoid this is to call
+			// Abort on the proxy when disposing, if a fault occurred (see https://msdn.microsoft.com/en-us/library/aa355056.aspx for more information).
+			var proxyCommunicationObject = _proxy as ICommunicationObject;
+			if (proxyCommunicationObject != null)
+				proxyCommunicationObject.Faulted -= SetFaulted;
+			if (_faulted)
 			{
-				if (_proxyChannelFactory != null)
-					((IDisposable)_proxyChannelFactory).Dispose();
+				if (proxyCommunicationObject != null)
+					proxyCommunicationObject.Abort();
 			}
+			else
+				proxyCommunicationObject.Close();
+			if (!_faulted && (_proxyChannelFactory != null))
+				((IDisposable)_proxyChannelFactory).Dispose();
 
 			_disposed = true;
+		}
+
+		private void SetFaulted(object sender, EventArgs e)
+		{
+			_faulted = true;
 		}
 
 		public RemoteSqlConnectionClient GetConnection()
