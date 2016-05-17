@@ -20,7 +20,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			try
 			{
 				//_host = new ServiceHost(new SqlProxy());
-				_host = new ServiceHost(new SqlReplayer(DatRetriever, ScalarDataRetriever));
+				_host = new ServiceHost(new SqlReplayer(DataRetriever, ScalarDataRetriever));
 				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
@@ -58,7 +58,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			_disposed = true;
 		}
 
-		private static IDataReader DatRetriever(QueryCriteria query)
+		private static IDataReader DataRetriever(QueryCriteria query)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
