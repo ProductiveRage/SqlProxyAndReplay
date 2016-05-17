@@ -12,12 +12,12 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		{
 			if (!_parametersToTidy.IsRecordedForCommand(parameterId, commandId))
 				throw new ArgumentException("The specified parameter must have been created by the specified command - parameters may not be shared between commands");
-			return _commandStore.Get(commandId).Parameters.Add(_parameterStore.Get(parameterId));
+			return ((IDataParameterCollection)_commandStore.Get(commandId).Parameters).Add(_parameterStore.Get(parameterId));
 		}
 
 		public ParameterId GetParameterByIndex(CommandId commandId, int index)
 		{
-			return _parameterStore.GetIdFor((IDbDataParameter)_commandStore.Get(commandId).Parameters[index]);
+			return _parameterStore.GetIdFor(_commandStore.Get(commandId).Parameters[index]);
 		}
 		public void SetParameterByIndex(CommandId commandId, int index, ParameterId parameterId)
 		{
@@ -31,7 +31,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public ParameterId GetParameterByName(CommandId commandId, string parameterName)
 		{
-			return _parameterStore.GetIdFor((IDbDataParameter)_commandStore.Get(commandId).Parameters[parameterName]);
+			return _parameterStore.GetIdFor(_commandStore.Get(commandId).Parameters[parameterName]);
 		}
 		public void SetParameterByName(CommandId commandId, string parameterName, ParameterId parameterId)
 		{

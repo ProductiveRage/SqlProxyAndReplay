@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -19,8 +20,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 
 			try
 			{
-				//_host = new ServiceHost(new SqlProxy());
-				_host = new ServiceHost(new SqlReplayer(DataRetriever, ScalarDataRetriever));
+				_host = new ServiceHost(new SqlProxy(QueryRecorder, ScalarQueryRecorder));
+				//_host = new ServiceHost(new SqlReplayer(DataRetriever, ScalarDataRetriever));
 				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
@@ -56,6 +57,22 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			}
 
 			_disposed = true;
+		}
+
+		private static void QueryRecorder(QueryCriteria query)
+		{
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			Console.WriteLine(query.CommandText); // TODO
+		}
+
+		private static void ScalarQueryRecorder(QueryCriteria query)
+		{
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			Console.WriteLine(query.CommandText); // TODO
 		}
 
 		private static IDataReader DataRetriever(QueryCriteria query)
