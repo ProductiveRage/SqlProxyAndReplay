@@ -6,10 +6,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed class SqlReplayerCommand : IDbCommand
 	{
+		private readonly SqlReplayerConnection _connection;
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
 		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
-		private readonly SqlReplayerConnection _connection;
-		public SqlReplayerCommand(SqlReplayerConnection connection, Func<QueryCriteria, IDataReader> dataRetriever, Func<QueryCriteria, Tuple<object>> scalarDataRetriever)
+		private readonly Func<QueryCriteria, int?> _nonQueryRowCountDataRetriever;
+		public SqlReplayerCommand(
+			SqlReplayerConnection connection,
+			Func<QueryCriteria, IDataReader> dataRetriever,
+			Func<QueryCriteria, Tuple<object>> scalarDataRetriever,
+			Func<QueryCriteria, int?> nonQueryRowCountDataRetriever)
 		{
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
@@ -17,10 +22,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new ArgumentNullException(nameof(dataRetriever));
 			if (scalarDataRetriever == null)
 				throw new ArgumentNullException(nameof(scalarDataRetriever));
+			if (nonQueryRowCountDataRetriever == null)
+				throw new ArgumentNullException(nameof(nonQueryRowCountDataRetriever));
 
 			_connection = connection;
 			_dataRetriever = dataRetriever;
 			_scalarDataRetriever = scalarDataRetriever;
+			_nonQueryRowCountDataRetriever = nonQueryRowCountDataRetriever;
 			Parameters = new SqlReplayerParameterCollection();
 		}
 
@@ -39,7 +47,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public int ExecuteNonQuery()
 		{
-			throw new NotImplementedException(); // TODO
+			var rowCount = _nonQueryRowCountDataRetriever(new QueryCriteria(
+				_connection.ConnectionString,
+				CommandText,
+				CommandType,
+				Parameters.Select(p => new QueryCriteria.ParameterInformation(p.ParameterName, p.Value, p.DbType, p.IsNullable, p.Direction, p.Scale, p.Size))
+			));
+			if (rowCount == null)
+				throw new Exception("Data is not available for this query");
+			return rowCount.Value;
 		}
 
 		public IDataReader ExecuteReader() { return ExecuteReader(CommandBehavior.Default); }

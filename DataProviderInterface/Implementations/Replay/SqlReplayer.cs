@@ -14,21 +14,28 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	{
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
 		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
+		private readonly Func<QueryCriteria, int?> _nonQueryRowCountDataRetriever;
 		private readonly Store<ConnectionId, SqlReplayerConnection> _connectionStore;
 		private readonly Store<CommandId, SqlReplayerCommand> _commandStore;
 		private readonly Store<TransactionId, SqlReplayerTransaction> _transactionStore;
 		private readonly Store<ParameterId, SqlReplayerParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
-		public SqlReplayer(Func<QueryCriteria, IDataReader> dataRetriever, Func<QueryCriteria, Tuple<object>> scalarDataRetriever)
+		public SqlReplayer(
+			Func<QueryCriteria, IDataReader> dataRetriever,
+			Func<QueryCriteria, Tuple<object>> scalarDataRetriever,
+			Func<QueryCriteria, int?> nonQueryRowCountDataRetriever)
 		{
 			if (dataRetriever == null)
 				throw new ArgumentNullException(nameof(dataRetriever));
 			if (scalarDataRetriever == null)
 				throw new ArgumentNullException(nameof(scalarDataRetriever));
+			if (nonQueryRowCountDataRetriever == null)
+				throw new ArgumentNullException(nameof(nonQueryRowCountDataRetriever));
 
 			_dataRetriever = dataRetriever;
 			_scalarDataRetriever = scalarDataRetriever;
+			_nonQueryRowCountDataRetriever = nonQueryRowCountDataRetriever;
 
 			_connectionStore = new Store<ConnectionId, SqlReplayerConnection>(() => new ConnectionId(Guid.NewGuid()));
 			_commandStore = new Store<CommandId, SqlReplayerCommand>(() => new CommandId(Guid.NewGuid()));
@@ -41,7 +48,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_parametersToTidy = new ConcurrentParameterToCommandLookup();
 		}
 
-		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlReplayerConnection(_dataRetriever, _scalarDataRetriever)); }
+		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlReplayerConnection(_dataRetriever, _scalarDataRetriever, _nonQueryRowCountDataRetriever)); }
 
 		public string GetConnectionString(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
 		public void SetConnectionString(ConnectionId connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
