@@ -6,12 +6,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	public sealed class SqlReplayerConnection : IDbConnection
 	{
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
-		public SqlReplayerConnection(Func<QueryCriteria, IDataReader> dataRetriever)
+		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
+		public SqlReplayerConnection(Func<QueryCriteria, IDataReader> dataRetriever, Func<QueryCriteria, Tuple<object>> scalarDataRetriever)
 		{
 			if (dataRetriever == null)
 				throw new ArgumentNullException(nameof(dataRetriever));
+			if (scalarDataRetriever == null)
+				throw new ArgumentNullException(nameof(scalarDataRetriever));
 
 			_dataRetriever = dataRetriever;
+			_scalarDataRetriever = scalarDataRetriever;
 		}
 
 		public string ConnectionString { get; set; }
@@ -47,7 +51,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public void Close() { }
 		public void Dispose() { }
 
-		public SqlReplayerCommand CreateCommand() { return new SqlReplayerCommand(this, _dataRetriever); }
+		public SqlReplayerCommand CreateCommand() { return new SqlReplayerCommand(this, _dataRetriever, _scalarDataRetriever); }
 		IDbCommand IDbConnection.CreateCommand() { return CreateCommand(); }
 	}
 }

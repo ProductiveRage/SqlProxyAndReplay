@@ -13,18 +13,22 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	public sealed partial class SqlReplayer : ISqlProxy
 	{
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
+		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
 		private readonly Store<ConnectionId, SqlReplayerConnection> _connectionStore;
 		private readonly Store<CommandId, SqlReplayerCommand> _commandStore;
 		private readonly Store<TransactionId, SqlReplayerTransaction> _transactionStore;
 		private readonly Store<ParameterId, SqlReplayerParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
-		public SqlReplayer(Func<QueryCriteria, IDataReader> dataRetriever)
+		public SqlReplayer(Func<QueryCriteria, IDataReader> dataRetriever, Func<QueryCriteria, Tuple<object>> scalarDataRetriever)
 		{
 			if (dataRetriever == null)
 				throw new ArgumentNullException(nameof(dataRetriever));
+			if (scalarDataRetriever == null)
+				throw new ArgumentNullException(nameof(scalarDataRetriever));
 
 			_dataRetriever = dataRetriever;
+			_scalarDataRetriever = scalarDataRetriever;
 
 			_connectionStore = new Store<ConnectionId, SqlReplayerConnection>(() => new ConnectionId(Guid.NewGuid()));
 			_commandStore = new Store<CommandId, SqlReplayerCommand>(() => new CommandId(Guid.NewGuid()));
@@ -37,7 +41,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_parametersToTidy = new ConcurrentParameterToCommandLookup();
 		}
 
-		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlReplayerConnection(_dataRetriever)); }
+		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlReplayerConnection(_dataRetriever, _scalarDataRetriever)); }
 
 		public string GetConnectionString(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
 		public void SetConnectionString(ConnectionId connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }

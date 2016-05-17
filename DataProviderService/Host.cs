@@ -20,7 +20,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			try
 			{
 				//_host = new ServiceHost(new SqlProxy());
-				_host = new ServiceHost(new SqlReplayer(GetDatRetriever));
+				_host = new ServiceHost(new SqlReplayer(DatRetriever, ScalarDataRetriever));
 				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
@@ -58,7 +58,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			_disposed = true;
 		}
 
-		private static IDataReader GetDatRetriever(QueryCriteria query)
+		private static IDataReader DatRetriever(QueryCriteria query)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
@@ -69,22 +69,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			// that only the returned data reader needs to be disposed by the caller).
 			using (var connection = new SqlConnection(query.ConnectionString))
 			{
-				using (var command = connection.CreateCommand())
+				using (var command = GetCommand(connection, query))
 				{
-					command.CommandText = query.CommandText;
-					command.CommandType = query.CommandType;
-					foreach (var p in query.Parameters)
-					{
-						var parameter = command.CreateParameter();
-						parameter.ParameterName = p.ParameterName;
-						parameter.Value = p.Value;
-						parameter.DbType = p.DbType;
-						parameter.IsNullable = p .IsNullable;
-						parameter.Direction = p.Direction;
-						parameter.Scale = p.Scale;
-						parameter.Size = p.Size;
-						command.Parameters.Add(parameter);
-					}
 					using (var dataSet = new DataSet())
 					{
 						connection.Open();
@@ -96,6 +82,50 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 					}
 				}
 			}
+		}
+
+		private static Tuple<object> ScalarDataRetriever(QueryCriteria query)
+		{
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			// Note: The same applies as to DatRetriever - this should use a memory or disk cache rather than hitting the database
+			using (var connection = new SqlConnection(query.ConnectionString))
+			{
+				using (var command = GetCommand(connection, query))
+				{
+					using (var dataSet = new DataSet())
+					{
+						connection.Open();
+						return Tuple.Create(command.ExecuteScalar());
+					}
+				}
+			}
+		}
+
+		private static SqlCommand GetCommand(SqlConnection connection, QueryCriteria query)
+		{
+			if (connection == null)
+				throw new ArgumentNullException(nameof(connection));
+			if (query == null)
+				throw new ArgumentNullException(nameof(query));
+
+			var command = connection.CreateCommand();
+			command.CommandText = query.CommandText;
+			command.CommandType = query.CommandType;
+			foreach (var p in query.Parameters)
+			{
+				var parameter = command.CreateParameter();
+				parameter.ParameterName = p.ParameterName;
+				parameter.Value = p.Value;
+				parameter.DbType = p.DbType;
+				parameter.IsNullable = p.IsNullable;
+				parameter.Direction = p.Direction;
+				parameter.Scale = p.Scale;
+				parameter.Size = p.Size;
+				command.Parameters.Add(parameter);
+			}
+			return command;
 		}
 	}
 }

@@ -7,16 +7,20 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	public sealed class SqlReplayerCommand : IDbCommand
 	{
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
+		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
 		private readonly SqlReplayerConnection _connection;
-		public SqlReplayerCommand(SqlReplayerConnection connection, Func<QueryCriteria, IDataReader> dataRetriever)
+		public SqlReplayerCommand(SqlReplayerConnection connection, Func<QueryCriteria, IDataReader> dataRetriever, Func<QueryCriteria, Tuple<object>> scalarDataRetriever)
 		{
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
 			if (dataRetriever == null)
 				throw new ArgumentNullException(nameof(dataRetriever));
+			if (scalarDataRetriever == null)
+				throw new ArgumentNullException(nameof(scalarDataRetriever));
 
 			_connection = connection;
 			_dataRetriever = dataRetriever;
+			_scalarDataRetriever = scalarDataRetriever;
 			Parameters = new SqlReplayerParameterCollection();
 		}
 
@@ -53,10 +57,17 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new Exception("Data is not available for this query");
 			return data;
 		}
-
 		public object ExecuteScalar()
 		{
-			throw new NotImplementedException(); // TODO
+			var data = _scalarDataRetriever(new QueryCriteria(
+				_connection.ConnectionString,
+				CommandText,
+				CommandType,
+				Parameters.Select(p => new QueryCriteria.ParameterInformation(p.ParameterName, p.Value, p.DbType, p.IsNullable, p.Direction, p.Scale, p.Size))
+			));
+			if (data == null)
+				throw new Exception("Data is not available for this query");
+			return data.Item1;
 		}
 
 		public void Prepare() { }
