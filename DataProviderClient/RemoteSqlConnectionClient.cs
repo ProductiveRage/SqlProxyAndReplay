@@ -96,27 +96,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			ThrowIfDisposed();
 			return new RemoteSqlCommandClient(_connection, _command, _transaction, _parameters, _parameter, _reader, _connection.CreateCommand(ConnectionId));
 		}
-		// This method isn't part of IDbConnection but it's very convenient, so I'm including it here
-		public RemoteSqlCommandClient CreateCommand(string commandText, IDbTransaction transaction = null, CommandType commandType = CommandType.Text)
-		{
-			if (string.IsNullOrWhiteSpace(commandText))
-				throw new ArgumentException("Null/blank " + nameof(commandText) + " specified");
-			RemoteSqlTransactionClient remoteSqlTransaction;
-			if (transaction == null)
-				remoteSqlTransaction = null;
-			else
-			{
-				remoteSqlTransaction = transaction as RemoteSqlTransactionClient;
-				if (remoteSqlTransaction == null)
-					throw new ArgumentException($"Transaction must be a {typeof(RemoteSqlTransactionClient)}");
-			}
-			var command = CreateCommand();
-			command.CommandText = commandText;
-			command.CommandType = commandType;
-			if (remoteSqlTransaction != null)
-				command.Transaction = remoteSqlTransaction;
-			return command;
-		}
 		IDbCommand IDbConnection.CreateCommand() { return CreateCommand(); }
 
 		public IDbTransaction BeginTransaction()

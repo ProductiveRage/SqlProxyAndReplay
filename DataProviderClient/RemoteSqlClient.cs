@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Data;
 using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 {
-	public sealed class RemoteSqlClient : IDisposable
+	public sealed class RemoteSqlClient : IDbConnection, IDisposable
 	{
 		private ChannelFactory<ISqlProxy> _proxyChannelFactory;
 		private ISqlProxy _proxy;
+		private RemoteSqlConnectionClient _connection;
 		private bool _faulted, _disposed;
-		public RemoteSqlClient(Uri endPoint)
+		public RemoteSqlClient(string connectionString, Uri endPoint)
 		{
+			if (connectionString == null)
+				throw new ArgumentNullException(nameof(connectionString));
 			if (endPoint == null)
 				throw new ArgumentNullException(nameof(endPoint));
 
@@ -19,7 +23,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				_proxyChannelFactory = new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint));
 				_proxy = _proxyChannelFactory.CreateChannel();
 				((ICommunicationObject)_proxy).Faulted += SetFaulted;
-
+				_connection = new RemoteSqlConnectionClient(
+					connection: _proxy,
+					command: _proxy,
+					transaction: _proxy,
+					parameters: _proxy,
+					parameter: _proxy,
+					reader: _proxy,
+					connectionId: _proxy.GetNewConnectionId()
+				);
+				_connection.ConnectionString = connectionString;
 			}
 			catch
 			{
@@ -58,7 +71,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 					proxyCommunicationObject.Abort();
 			}
 			else
+			{
+				_connection.Dispose();
 				proxyCommunicationObject.Close();
+			}
 			if (!_faulted && (_proxyChannelFactory != null))
 				((IDisposable)_proxyChannelFactory).Dispose();
 
@@ -70,26 +86,42 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			_faulted = true;
 		}
 
-		public RemoteSqlConnectionClient GetConnection()
+		public string ConnectionString
 		{
-			ThrowIfDisposed();
-			return new RemoteSqlConnectionClient(
-				connection: _proxy,
-				command: _proxy,
-				transaction: _proxy,
-				parameters: _proxy,
-				parameter: _proxy,
-				reader: _proxy,
-				connectionId: _proxy.GetNewConnectionId()
-			);
+			get { ThrowIfDisposed(); return _connection.ConnectionString; }
+			set { ThrowIfDisposed(); _connection.ConnectionString = value; }
 		}
+		public int ConnectionTimeout { get { ThrowIfDisposed(); return _connection.ConnectionTimeout; } }
+		public string Database { get { ThrowIfDisposed(); return _connection.Database; } }
+		public ConnectionState State { get { ThrowIfDisposed(); return _connection.State; } }
+		public void ChangeDatabase(string databaseName) { ThrowIfDisposed(); _connection.BeginTransaction(); }
+		public void Open() { ThrowIfDisposed(); _connection.Open(); }
+		public void Close() { ThrowIfDisposed(); _connection.Close(); }
+		public IDbTransaction BeginTransaction() { ThrowIfDisposed(); return _connection.BeginTransaction(); }
+		public IDbTransaction BeginTransaction(IsolationLevel il) { ThrowIfDisposed(); return _connection.BeginTransaction(il); }
+		public RemoteSqlCommandClient CreateCommand() { ThrowIfDisposed(); return _connection.CreateCommand(); }
+		IDbCommand IDbConnection.CreateCommand() { return CreateCommand(); }
 
-		public RemoteSqlConnectionClient GetConnection(string connectionString)
+		// This method isn't part of IDbConnection but it's very convenient, so I'm including it here
+		public RemoteSqlCommandClient CreateCommand(string commandText, IDbTransaction transaction = null, CommandType commandType = CommandType.Text)
 		{
-			ThrowIfDisposed();
-			var connection = GetConnection();
-			connection.ConnectionString = connectionString;
-			return connection;
+			if (string.IsNullOrWhiteSpace(commandText))
+				throw new ArgumentException("Null/blank " + nameof(commandText) + " specified");
+			RemoteSqlTransactionClient remoteSqlTransaction;
+			if (transaction == null)
+				remoteSqlTransaction = null;
+			else
+			{
+				remoteSqlTransaction = transaction as RemoteSqlTransactionClient;
+				if (remoteSqlTransaction == null)
+					throw new ArgumentException($"Transaction must be a {typeof(RemoteSqlTransactionClient)}");
+			}
+			var command = CreateCommand();
+			command.CommandText = commandText;
+			command.CommandType = commandType;
+			if (remoteSqlTransaction != null)
+				command.Transaction = remoteSqlTransaction;
+			return command;
 		}
 
 		private void ThrowIfDisposed()

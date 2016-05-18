@@ -42,80 +42,68 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 					}
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(proxyEndPoint))
+			using (var conn = new RemoteSqlClient(connectionString, proxyEndPoint))
 			{
-				using (var conn = connCreator.GetConnection(connectionString))
+				conn.Open();
+				using (var transaction = conn.BeginTransaction())
 				{
-					conn.Open();
-					using (var transaction = conn.BeginTransaction())
+					using (var cmd = conn.CreateCommand(sql, transaction: transaction))
 					{
-						using (var cmd = conn.CreateCommand(sql, transaction))
+						cmd.Parameters.AddWithValue("name", "Bob");
+						using (var rdr = cmd.ExecuteReader())
 						{
-							cmd.Parameters.AddWithValue("name", "Bob");
-							using (var rdr = cmd.ExecuteReader())
+							Console.WriteLine("Raw SQL via proxy..");
+							while (rdr.Read())
 							{
-								Console.WriteLine("Raw SQL via proxy..");
-								while (rdr.Read())
-								{
-									Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
-								}
-								Console.WriteLine();
+								Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
 							}
+							Console.WriteLine();
 						}
 					}
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(proxyEndPoint))
+			using (var conn = new RemoteSqlClient(connectionString, proxyEndPoint))
 			{
-				using (var conn = connCreator.GetConnection(connectionString))
+				conn.Open();
+				using (var transaction = conn.BeginTransaction())
 				{
-					conn.Open();
-					using (var transaction = conn.BeginTransaction())
-					{
-						Console.WriteLine("Dapper via proxy..");
-						var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
-						foreach (var product in products)
-							Console.WriteLine(product.ProductName);
-						Console.WriteLine();
-					}
+					Console.WriteLine("Dapper via proxy..");
+					var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
+					foreach (var product in products)
+						Console.WriteLine(product.ProductName);
+					Console.WriteLine();
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(replayEndPoint))
+			using (var conn = new RemoteSqlClient(connectionString, replayEndPoint))
 			{
-				using (var conn = connCreator.GetConnection(connectionString))
+				conn.Open();
+				using (var transaction = conn.BeginTransaction())
 				{
-					conn.Open();
-					using (var transaction = conn.BeginTransaction())
+					using (var cmd = conn.CreateCommand(sql, transaction))
 					{
-						using (var cmd = conn.CreateCommand(sql, transaction))
+						cmd.Parameters.AddWithValue("name", "Bob");
+						using (var rdr = cmd.ExecuteReader())
 						{
-							cmd.Parameters.AddWithValue("name", "Bob");
-							using (var rdr = cmd.ExecuteReader())
+							Console.WriteLine("Raw SQL via replay proxy..");
+							while (rdr.Read())
 							{
-								Console.WriteLine("Raw SQL via replay proxy..");
-								while (rdr.Read())
-								{
-									Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
-								}
-								Console.WriteLine();
+								Console.WriteLine(rdr.GetString(rdr.GetOrdinal("ProductName")));
 							}
+							Console.WriteLine();
 						}
 					}
 				}
 			}
-			using (var connCreator = new RemoteSqlClient(replayEndPoint))
+			using (var conn = new RemoteSqlClient(connectionString, replayEndPoint))
 			{
-				using (var conn = connCreator.GetConnection(connectionString))
+				conn.Open();
+				using (var transaction = conn.BeginTransaction())
 				{
-					conn.Open();
-					using (var transaction = conn.BeginTransaction())
-					{
-						Console.WriteLine("Dapper via replay proxy..");
-						var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
-						foreach (var product in products)
-							Console.WriteLine(product.ProductName);
-						Console.WriteLine();
-					}
+					Console.WriteLine("Dapper via replay proxy..");
+					var products = conn.Query<Product>(sql, new { name = "Bob" }, transaction: transaction);
+					foreach (var product in products)
+						Console.WriteLine(product.ProductName);
+					Console.WriteLine();
 				}
 			}
 			Console.WriteLine("Press [Enter] to terminate..");
