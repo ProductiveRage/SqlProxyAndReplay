@@ -7,7 +7,11 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		private object _value;
 		public SqlReplayerParameter()
 		{
-			Direction = ParameterDirection.Input; // TODO: Explain
+			// Apply some sensible defaults - important for properties whose default state is invalid (eg. there is no zero value for the ParameterDirection
+			// enum) but more important that the property defaults here match those on SqlParameter for when the replayer aspect of the services comes to
+			// look in its cache (it will check that the connection, command and parameters are consistent between the current request and any cache entry,
+			// the direction of the parameter - Input, Output, InputOutput, ReturnValue - is important)
+			Direction = ParameterDirection.Input;
 			_value = null;
 		}
 

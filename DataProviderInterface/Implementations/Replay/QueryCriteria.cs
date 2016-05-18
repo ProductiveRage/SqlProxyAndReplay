@@ -87,7 +87,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 					return false;
 				return
 					(otherParameter.ParameterName == ParameterName) &&
-					AreValuesEqual(otherParameter.Value, Value) && // TODO: Explain
+					AreValuesEqual(otherParameter.Value, Value) &&
 					(otherParameter.DbType == DbType) &&
 					(otherParameter.IsNullable == IsNullable) &&
 					(otherParameter.Direction == Direction) &&
@@ -95,6 +95,12 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 					(otherParameter.Size == Size);
 			}
 
+			/// <summary>
+			/// When comparing two object instances, a reference equality will check the references and not any Equals method that the values
+			/// may have - if two strings were compared while they were cast as object then the same string that two separate references pointed
+			/// at would not be found to match. To avoid this false negative, we need to ensure that either both references are null or that both
+			/// are non-null and that the Equals method on one reference returns true when given the other.
+			/// </summary>
 			private static bool AreValuesEqual(object x, object y)
 			{
 				if ((x == null) && (y == null))

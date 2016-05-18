@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
@@ -53,7 +52,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 							{
 								(new BinaryFormatter()).Serialize(stream, dataSet);
 								_serialisedQueryAndResultsCache.TryAdd(query, stream.ToArray());
-								var hashes = _serialisedQueryAndResultsCache.Keys.Select(x => x.GetHashCode()).ToArray(); // TODO: Remove
 							}
 						}
 					}

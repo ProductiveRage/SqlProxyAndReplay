@@ -43,7 +43,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			}
 		}
 
-		public ConnectionState State { get { return ConnectionState.Open; } } // TODO: This should be alright..(?)
+		public ConnectionState State
+		{
+			get
+			{
+				// We'll just act as if this connection is always open - the only way that this should be a problem for calling code is if it
+				// tries to close a connection and then check that it has successfully closed, which doesn't feel like a common pattern (if it
+				// turns out to be more common than expected then some state tracking could be introduced here - start Closed, change to Open
+				// if the Open method is called, change to Closed if the Closed method is called, throw exceptions if operations are attempted
+				// that require an open connection)
+				return ConnectionState.Open;
+			}
+		}
 
 		public SqlReplayerTransaction BeginTransaction(IsolationLevel il = IsolationLevel.ReadCommitted) { return new SqlReplayerTransaction(this, il); }
 		IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il) { return BeginTransaction(il); }
