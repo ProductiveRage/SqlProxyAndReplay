@@ -53,22 +53,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public string GetConnectionString(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
 		public void SetConnectionString(ConnectionId connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
 
-		public int GetConnectionTimeout(ConnectionId connectionId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public int GetConnectionTimeout(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionTimeout; }
 
-		public string GetDatabase(ConnectionId connectionId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public string GetDatabase(ConnectionId connectionId) { return _connectionStore.Get(connectionId).Database; }
 
 		public ConnectionState GetState(ConnectionId connectionId) { return _connectionStore.Get(connectionId).State; }
 
-		public void ChangeDatabase(ConnectionId connectionId, string databaseName)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public void ChangeDatabase(ConnectionId connectionId, string databaseName) { _connectionStore.Get(connectionId).ChangeDatabase(databaseName); }
 
 		public void Open(ConnectionId connectionId) { _connectionStore.Get(connectionId).Open(); }
 		public void Close(ConnectionId connectionId) { _connectionStore.Get(connectionId).Close(); }
@@ -87,15 +78,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public string GetCommandText(CommandId commandId) { return _commandStore.Get(commandId).CommandText; }
 		public void SetCommandText(CommandId commandId, string value) { _commandStore.Get(commandId).CommandText = value; }
 
-		public int GetCommandTimeout(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void SetCommandTimeout(CommandId commandId, int value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public int GetCommandTimeout(CommandId commandId) { return _commandStore.Get(commandId).CommandTimeout; }
+		public void SetCommandTimeout(CommandId commandId, int value) { _commandStore.Get(commandId).CommandTimeout = value; }
 
 		public CommandType GetCommandType(CommandId commandId) { return _commandStore.Get(commandId).CommandType; }
 		public void SetCommandType(CommandId commandId, CommandType value) { _commandStore.Get(commandId).CommandType = value; }
@@ -104,7 +88,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		{
 			throw new NotImplementedException(); // TODO
 		}
-
 		public void SetConnection(CommandId commandId, ConnectionId? connectionId)
 		{
 			throw new NotImplementedException(); // TODO
@@ -126,26 +109,11 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		}
 		public void SetTransaction(CommandId commandId, TransactionId? transactionId) { _commandStore.Get(commandId).Transaction = (transactionId == null) ? null : _transactionStore.Get(transactionId.Value); }
 
-		public UpdateRowSource GetUpdatedRowSource(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public UpdateRowSource GetUpdatedRowSource(CommandId commandId) { return _commandStore.Get(commandId).UpdatedRowSource; }
+		public void SetUpdatedRowSource(CommandId commandId, UpdateRowSource value) { _commandStore.Get(commandId).UpdatedRowSource = value; }
 
-		public void SetUpdatedRowSource(CommandId commandId, UpdateRowSource value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void Prepare(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void Cancel(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public void Prepare(CommandId commandId) { _commandStore.Get(commandId).Prepare(); }
+		public void Cancel(CommandId commandId) { _commandStore.Get(commandId).Cancel(); }
 		public void Dispose(CommandId commandId)
 		{
 			_commandStore.Get(commandId).Dispose();
@@ -181,25 +149,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			throw new NotImplementedException(); // TODO
 		}
 
-		public int GetCount(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void Clear(CommandId commandId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public int GetCount(CommandId commandId) { return _commandStore.Get(commandId).Parameters.Count; }
+		public void Clear(CommandId commandId) { _commandStore.Get(commandId).Parameters.Clear(); }
 		public bool Contains(CommandId commandId, ParameterId parameterId)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-
-		public bool Contains(CommandId commandId, string parameterName)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public bool Contains(CommandId commandId, string parameterName) { return _commandStore.Get(commandId).Parameters.Contains(parameterName); }
 
 		public ParameterDirection GetDirection(ParameterId parameterId) { return _parameterStore.Get(parameterId).Direction; }
 		public void SetDirection(ParameterId parameterId, ParameterDirection value) { _parameterStore.Get(parameterId).Direction = value; }
@@ -207,56 +163,25 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public DbType GetDbType(ParameterId parameterId) { return _parameterStore.Get(parameterId).DbType; }
 		public void SetDbType(ParameterId parameterId, DbType value) { _parameterStore.Get(parameterId).DbType = value; }
 
-		public byte GetPrecision(ParameterId parameterId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public byte GetPrecision(ParameterId parameterId) { return _parameterStore.Get(parameterId).Precision; }
+		public void SetPrecision(ParameterId parameterId, byte value) { _parameterStore.Get(parameterId).Precision = value; }
 
-		public void SetPrecision(ParameterId parameterId, byte value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public byte GetScale(ParameterId parameterId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void SetScale(ParameterId parameterId, byte value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public byte GetScale(ParameterId parameterId) { return _parameterStore.Get(parameterId).Scale; }
+		public void SetScale(ParameterId parameterId, byte value) { _parameterStore.Get(parameterId).Scale = value; }
+		
 		public int GetSize(ParameterId parameterId) { return _parameterStore.Get(parameterId).Size; }
 		public void SetSize(ParameterId parameterId, int value) { _parameterStore.Get(parameterId).Size = value; }
 
-		public bool GetIsNullable(ParameterId parameterId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public bool GetIsNullable(ParameterId parameterId) { return _parameterStore.Get(parameterId).IsNullable; }
 
 		public string GetParameterName(ParameterId parameterId) { return _parameterStore.Get(parameterId).ParameterName; }
 		public void SetParameterName(ParameterId parameterId, string value) { _parameterStore.Get(parameterId).ParameterName = value; }
 
-		public string GetSourceColumn(ParameterId parameterId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public string GetSourceColumn(ParameterId parameterId) { return _parameterStore.Get(parameterId).SourceColumn; }
+		public void SetSourceColumn(ParameterId parameterId, string value) { _parameterStore.Get(parameterId).SourceColumn = value; }
 
-		public void SetSourceColumn(ParameterId parameterId, string value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public DataRowVersion GetSourceVersion(ParameterId parameterId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public void SetSourceVersion(ParameterId parameterId, DataRowVersion value)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public DataRowVersion GetSourceVersion(ParameterId parameterId) { return _parameterStore.Get(parameterId).SourceVersion; }
+		public void SetSourceVersion(ParameterId parameterId, DataRowVersion value) { _parameterStore.Get(parameterId).SourceVersion = value; }
 
 		public object GetValue(ParameterId parameterId) { return _parameterStore.Get(parameterId).Value; }
 		public void SetValue(ParameterId parameterId, object value) { _parameterStore.Get(parameterId).Value = value; }
@@ -283,10 +208,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public bool Read(DataReaderId readerId) { return _readerStore.Get(readerId).Read(); }
 		public bool NextResult(DataReaderId readerId) { return _readerStore.Get(readerId).NextResult(); }
 
-		public void Close(DataReaderId readerId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public void Close(DataReaderId readerId) { _readerStore.Get(readerId).Close(); }
 
 		public void Dispose(DataReaderId readerId)
 		{
@@ -301,109 +223,39 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public int GetFieldCount(DataReaderId readerId) { return _readerStore.Get(readerId).FieldCount; }
 
-		public bool GetIsClosed(DataReaderId readerId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public bool GetIsClosed(DataReaderId readerId) { return _readerStore.Get(readerId).IsClosed; }
 
-		public int GetRecordsAffected(DataReaderId readerId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public int GetRecordsAffected(DataReaderId readerId) { return _readerStore.Get(readerId).RecordsAffected; }
 
-		public bool IsDBNull(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public bool GetBoolean(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public byte GetByte(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public bool IsDBNull(DataReaderId readerId, int i) { return _readerStore.Get(readerId).IsDBNull(i); }
+		public byte GetByte(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetByte(i); }
 		public Tuple<long, byte[]> GetBytes(DataReaderId readerId, int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-
-		public char GetChar(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public char GetChar(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetChar(i); }
 		public Tuple<long, char[]> GetChars(DataReaderId readerId, int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-
 		public DataReaderId GetData(DataReaderId readerId, int i)
 		{
 			throw new NotImplementedException(); // TODO
 		}
-
-		public string GetDataTypeName(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public DateTime GetDateTime(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public decimal GetDecimal(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public double GetDouble(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public string GetDataTypeName(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDataTypeName(i); }
+		public DateTime GetDateTime(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDateTime(i); }
+		public decimal GetDecimal(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDecimal(i); }
+		public double GetDouble(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDouble(i); }
 		public string GetFieldType(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetFieldType(i).FullName; }
-
-		public float GetFloat(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public Guid GetGuid(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public short GetInt16(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public int GetInt32(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
-		public long GetInt64(DataReaderId readerId, int i)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public float GetFloat(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetFloat(i); }
+		public Guid GetGuid(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetGuid(i); }
+		public short GetInt16(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetInt16(i); }
+		public int GetInt32(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetInt32(i); }
+		public long GetInt64(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetInt64(i); }
 		public string GetName(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetName(i); }
-
 		public int GetOrdinal(DataReaderId readerId, string name) { return _readerStore.Get(readerId).GetOrdinal(name); }
-
-		public DataTable GetSchemaTable(DataReaderId readerId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).IsDBNull(i); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
-
 		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
 
 		public int GetValues(DataReaderId readerId, object[] values)
