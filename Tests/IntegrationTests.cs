@@ -36,7 +36,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tests
 				{
 					using (var command = proxyConnection.CreateCommand("SELECT * FROM test"))
 					{
-						reusableConnection.Open();
+						proxyConnection.Open();
 						using (var reader = command.ExecuteReader())
 						{
 							while (reader.Read())
