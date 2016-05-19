@@ -10,7 +10,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 	{
 		static void Main(string[] args)
 		{
-			var cache = new DictionaryCache(infoLogger: Console.WriteLine);
+			var cache = new DictionaryCache(SqlRunner.Instance, infoLogger: Console.WriteLine);
 			var proxyEndPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
 			var replayEndPoint = new Uri("net.tcp://localhost:5001/SqlProxy");
 			using (var proxyHost = new Host(new SqlProxy(() => new SqlConnection(), cache.QueryRecorder, cache.ScalarQueryRecorder, cache.NonQueryRowCountRecorder), proxyEndPoint))

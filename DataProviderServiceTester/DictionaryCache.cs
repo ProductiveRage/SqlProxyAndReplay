@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
@@ -10,15 +9,19 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 {
 	public sealed class DictionaryCache
 	{
+		private readonly ISqlRunner _sqlRunner;
 		private readonly Action<string> _infoLogger;
 		private readonly ConcurrentDictionary<QueryCriteria, byte[]> _serialisedQueryAndResultsCache;
 		private readonly ConcurrentDictionary<QueryCriteria, object> _serialisedQueryAndScalarResultsCache;
 		private readonly ConcurrentDictionary<QueryCriteria, int> _serialisedQueryAndNonQueryRowCountCache;
-		public DictionaryCache(Action<string> infoLogger)
+		public DictionaryCache(ISqlRunner sqlRunner, Action<string> infoLogger)
 		{
+			if (sqlRunner == null)
+				throw new ArgumentNullException(nameof(sqlRunner));
 			if (infoLogger == null)
 				throw new ArgumentNullException(nameof(infoLogger));
 
+			_sqlRunner = sqlRunner;
 			_infoLogger = infoLogger;
 			_serialisedQueryAndResultsCache = new ConcurrentDictionary<QueryCriteria, byte[]>();
 			_serialisedQueryAndScalarResultsCache = new ConcurrentDictionary<QueryCriteria, object>();
@@ -31,24 +34,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 				throw new ArgumentNullException(nameof(query));
 
 			_infoLogger("LIVE[ExecuteReader]: " + query.CommandText);
-			using (var connection = new SqlConnection(query.ConnectionString))
+			using (var dataSet = _sqlRunner.Execute(query))
 			{
-				using (var command = GetCommand(connection, query))
+				dataSet.RemotingFormat = SerializationFormat.Binary;
+				using (var stream = new MemoryStream())
 				{
-					using (var dataSet = new DataSet())
-					{
-						connection.Open();
-						using (var dataAdapter = new SqlDataAdapter(command))
-						{
-							dataAdapter.Fill(dataSet);
-							dataSet.RemotingFormat = SerializationFormat.Binary;
-							using (var stream = new MemoryStream())
-							{
-								(new BinaryFormatter()).Serialize(stream, dataSet);
-								_serialisedQueryAndResultsCache.TryAdd(query, stream.ToArray());
-							}
-						}
-					}
+					(new BinaryFormatter()).Serialize(stream, dataSet);
+					_serialisedQueryAndResultsCache.TryAdd(query, stream.ToArray());
 				}
 			}
 		}
@@ -59,14 +51,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 				throw new ArgumentNullException(nameof(query));
 
 			_infoLogger("LIVE[ExecuteScalar]: " + query.CommandText);
-			using (var connection = new SqlConnection(query.ConnectionString))
-			{
-				using (var command = GetCommand(connection, query))
-				{
-					connection.Open();
-					_serialisedQueryAndScalarResultsCache.TryAdd(query, command.ExecuteScalar());
-				}
-			}
+			_serialisedQueryAndScalarResultsCache.TryAdd(query, _sqlRunner.ExecuteScalar(query));
 		}
 
 		public void NonQueryRowCountRecorder(QueryCriteria query)
@@ -75,14 +60,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 				throw new ArgumentNullException(nameof(query));
 
 			_infoLogger("LIVE[ExecuteNonQuery]: " + query.CommandText);
-			using (var connection = new SqlConnection(query.ConnectionString))
-			{
-				using (var command = GetCommand(connection, query))
-				{
-					connection.Open();
-					_serialisedQueryAndNonQueryRowCountCache.TryAdd(query, command.ExecuteNonQuery());
-				}
-			}
+			_serialisedQueryAndNonQueryRowCountCache.TryAdd(query, _sqlRunner.ExecuteNonQuery(query));
 		}
 
 		public IDataReader DataRetriever(QueryCriteria query)
@@ -127,31 +105,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 				return null;
 
 			return rowCount;
-		}
-
-		private static SqlCommand GetCommand(SqlConnection connection, QueryCriteria query)
-		{
-			if (connection == null)
-				throw new ArgumentNullException(nameof(connection));
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			var command = connection.CreateCommand();
-			command.CommandText = query.CommandText;
-			command.CommandType = query.CommandType;
-			foreach (var p in query.Parameters)
-			{
-				var parameter = command.CreateParameter();
-				parameter.ParameterName = p.ParameterName;
-				parameter.Value = p.Value;
-				parameter.DbType = p.DbType;
-				parameter.IsNullable = p.IsNullable;
-				parameter.Direction = p.Direction;
-				parameter.Scale = p.Scale;
-				parameter.Size = p.Size;
-				command.Parameters.Add(parameter);
-			}
-			return command;
 		}
 	}
 }
