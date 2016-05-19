@@ -78,6 +78,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 				parameter.Value = p.Value;
 				parameter.DbType = p.DbType;
 				parameter.Direction = p.Direction;
+				parameter.IsNullable = p.IsNullable;
 				parameter.Scale = p.Scale;
 				parameter.Size = p.Size;
 				command.Parameters.Add(parameter);
