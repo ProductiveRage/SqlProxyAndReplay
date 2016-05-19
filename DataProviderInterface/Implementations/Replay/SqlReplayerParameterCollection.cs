@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay
 {
+	public sealed class SqlReplayerParameterCollection : IDataParameterCollection, IEnumerable<IDbDataParameter>
 	{
 		private readonly List<IDbDataParameter> _parameters;
 		public SqlReplayerParameterCollection()
