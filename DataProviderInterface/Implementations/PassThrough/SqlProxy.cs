@@ -16,10 +16,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	{
 		private readonly Action<QueryCriteria> _queryRecorder;
 		private readonly Action<QueryCriteria> _scalarQueryRecorder;
-		private readonly Store<ConnectionId, SqlConnection> _connectionStore;
-		private readonly Store<CommandId, SqlCommand> _commandStore;
-		private readonly Store<TransactionId, SqlTransaction> _transactionStore;
-		private readonly Store<ParameterId, SqlParameter> _parameterStore;
+		private readonly Store<ConnectionId, IDbConnection> _connectionStore;
+		private readonly Store<CommandId, IDbCommand> _commandStore;
+		private readonly Store<TransactionId, IDbTransaction> _transactionStore;
+		private readonly Store<ParameterId, IDbDataParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
 		public SqlProxy(Action<QueryCriteria> queryRecorder, Action<QueryCriteria> scalarQueryRecorder)
@@ -32,10 +32,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_queryRecorder = queryRecorder;
 			_scalarQueryRecorder = scalarQueryRecorder;
 
-			_connectionStore = new Store<ConnectionId, SqlConnection>(() => new ConnectionId(Guid.NewGuid()));
-			_commandStore = new Store<CommandId, SqlCommand>(() => new CommandId(Guid.NewGuid()));
-			_transactionStore = new Store<TransactionId, SqlTransaction>(() => new TransactionId(Guid.NewGuid()));
-			_parameterStore = new Store<ParameterId, SqlParameter>(() => new ParameterId(Guid.NewGuid()));
+			_connectionStore = new Store<ConnectionId, IDbConnection>(() => new ConnectionId(Guid.NewGuid()));
+			_commandStore = new Store<CommandId, IDbCommand>(() => new CommandId(Guid.NewGuid()));
+			_transactionStore = new Store<TransactionId, IDbTransaction>(() => new TransactionId(Guid.NewGuid()));
+			_parameterStore = new Store<ParameterId, IDbDataParameter>(() => new ParameterId(Guid.NewGuid()));
 			_readerStore = new Store<DataReaderId, IDataReader>(() => new DataReaderId(Guid.NewGuid()));
 
 			// Parameters are not disposed of individually (unlike connections, commands, transactions and readers) - instead, the parameters in

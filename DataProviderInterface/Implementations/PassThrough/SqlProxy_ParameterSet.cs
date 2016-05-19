@@ -17,7 +17,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public ParameterId GetParameterByIndex(CommandId commandId, int index)
 		{
-			return _parameterStore.GetIdFor(_commandStore.Get(commandId).Parameters[index]);
+			return _parameterStore.GetIdFor((IDbDataParameter)_commandStore.Get(commandId).Parameters[index]);
 		}
 		public void SetParameterByIndex(CommandId commandId, int index, ParameterId parameterId)
 		{
@@ -31,7 +31,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public ParameterId GetParameterByName(CommandId commandId, string parameterName)
 		{
-			return _parameterStore.GetIdFor(_commandStore.Get(commandId).Parameters[parameterName]);
+			return _parameterStore.GetIdFor((IDbDataParameter)_commandStore.Get(commandId).Parameters[parameterName]);
 		}
 		public void SetParameterByName(CommandId commandId, string parameterName, ParameterId parameterId)
 		{

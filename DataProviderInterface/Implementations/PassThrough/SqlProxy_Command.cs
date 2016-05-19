@@ -174,12 +174,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			);
 		}
 
-		private static IEnumerable<SqlParameter> ToEnumerable(SqlParameterCollection parameters)
+		private static IEnumerable<IDbDataParameter> ToEnumerable(IDataParameterCollection parameters)
 		{
 			if (parameters == null)
 				throw new ArgumentNullException(nameof(parameters));
 
-			return Enumerable.Range(0, parameters.Count).Select(i => parameters[i]);
+			return Enumerable.Range(0, parameters.Count)
+				.Select(i => parameters[i])
+				.Cast<IDbDataParameter>();
 		}
 	}
 }

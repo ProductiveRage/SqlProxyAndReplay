@@ -54,10 +54,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public CommandId CreateCommand(ConnectionId connectionId)
 		{
-			return _commandStore.Add(new SqlCommand
-			{
-				Connection = _connectionStore.Get(connectionId)
-			});
+			return _commandStore.Add(_connectionStore.Get(connectionId).CreateCommand());
 		}
 	}
 }
