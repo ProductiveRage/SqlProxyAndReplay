@@ -228,6 +228,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public int GetRecordsAffected(DataReaderId readerId) { return _readerStore.Get(readerId).RecordsAffected; }
 
 		public bool IsDBNull(DataReaderId readerId, int i) { return _readerStore.Get(readerId).IsDBNull(i); }
+		public bool GetBoolean(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetBoolean(i); }
 		public byte GetByte(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetByte(i); }
 		public Tuple<long, byte[]> GetBytes(DataReaderId readerId, int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
 		{
@@ -254,7 +255,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public long GetInt64(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetInt64(i); }
 		public string GetName(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetName(i); }
 		public int GetOrdinal(DataReaderId readerId, string name) { return _readerStore.Get(readerId).GetOrdinal(name); }
-		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).IsDBNull(i); }
+		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).GetSchemaTable(); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
 		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
 
