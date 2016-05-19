@@ -45,6 +45,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			ConnectionId = connectionId;
 			_disposed = false;
 		}
+		public RemoteSqlConnectionClient(ISqlProxy proxy, ConnectionId connectionId) : this(proxy, proxy, proxy, proxy, proxy, proxy, connectionId) { }
 		~RemoteSqlConnectionClient()
 		{
 			Dispose(false);

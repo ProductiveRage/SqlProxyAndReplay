@@ -23,15 +23,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				_proxyChannelFactory = new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint));
 				_proxy = _proxyChannelFactory.CreateChannel();
 				((ICommunicationObject)_proxy).Faulted += SetFaulted;
-				_connection = new RemoteSqlConnectionClient(
-					connection: _proxy,
-					command: _proxy,
-					transaction: _proxy,
-					parameters: _proxy,
-					parameter: _proxy,
-					reader: _proxy,
-					connectionId: _proxy.GetNewConnectionId()
-				);
+				_connection = new RemoteSqlConnectionClient(_proxy, connectionId: _proxy.GetNewConnectionId());
 				_connection.ConnectionString = connectionString;
 			}
 			catch
