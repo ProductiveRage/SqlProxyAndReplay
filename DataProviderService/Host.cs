@@ -8,7 +8,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 	public sealed class Host : IDisposable
 	{
 		private ServiceHost _host;
-		private bool _disposed;
+		private bool _faulted, _disposed;
 		public Host(ISqlProxy singleInstanceContextModeProxy, Uri endPoint)
 		{
 			if (singleInstanceContextModeProxy == null)
@@ -20,6 +20,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			{
 				_host = new ServiceHost(singleInstanceContextModeProxy);
 				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
+				_host.Faulted += SetFaulted;
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
 				_host.Open();
@@ -29,6 +30,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 				Dispose();
 				throw;
 			}
+			_faulted = false;
 			_disposed = false;
 		}
 
@@ -48,11 +50,22 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 
 			// Note should only tidy up managed objects if disposing is true - but the host reference wraps unmanaged resources (so we're only tidying up unmanaged
 			// resources here and so we don't need to check whether disposing is true or not)
-			var disposableHost = _host as IDisposable;
-			if (disposableHost != null)
-				disposableHost.Dispose(); // Note: This waits until clients have disconnect
+			_host.Faulted -= SetFaulted;
+			if (_faulted)
+				_host.Abort();
+			else
+			{
+				var disposableHost = _host as IDisposable;
+				if (disposableHost != null)
+					disposableHost.Dispose(); // Note: This waits until clients have disconnect
+			}
 
 			_disposed = true;
+		}
+
+		private void SetFaulted(object sender, EventArgs e)
+		{
+			_faulted = true;
 		}
 	}
 }
