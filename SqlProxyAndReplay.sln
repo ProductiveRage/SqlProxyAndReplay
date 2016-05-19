@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderServiceTester",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderClient", "DataProviderClient\DataProviderClient.csproj", "{86DED133-2D78-4723-9243-211E92747FFA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{055EF204-6EBC-4448-A781-EF2880DC5D29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{86DED133-2D78-4723-9243-211E92747FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86DED133-2D78-4723-9243-211E92747FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86DED133-2D78-4723-9243-211E92747FFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
