@@ -72,6 +72,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		[OperationContract]
 		object GetValue(DataReaderId readerId, int i);
 		[OperationContract]
-		Tuple<int, byte[]> GetValues(DataReaderId readerId, object[] values);
+		Tuple<int, object[]> GetValues(DataReaderId readerId, object[] values);
 	}
 }
