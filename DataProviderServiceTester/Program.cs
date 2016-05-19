@@ -18,7 +18,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.Sql
 		{
 			var proxyEndPoint = new Uri("net.tcp://localhost:5000/SqlProxy");
 			var replayEndPoint = new Uri("net.tcp://localhost:5001/SqlProxy");
-			using (var proxyHost = new Host(new SqlProxy(QueryRecorder, ScalarQueryRecorder), proxyEndPoint))
+			using (var proxyHost = new Host(new SqlProxy(() => new SqlConnection(), QueryRecorder, ScalarQueryRecorder), proxyEndPoint))
 			{
 				using (var replayHost = new Host(new SqlReplayer(DataRetriever, ScalarDataRetriever, NonQueryRowCountDataRetriever), replayEndPoint))
 				{

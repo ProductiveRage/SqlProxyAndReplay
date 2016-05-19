@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
@@ -14,6 +13,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public sealed partial class SqlProxy : ISqlProxy
 	{
+		private readonly Func<IDbConnection> _connectionGenerator;
 		private readonly Action<QueryCriteria> _queryRecorder;
 		private readonly Action<QueryCriteria> _scalarQueryRecorder;
 		private readonly Store<ConnectionId, IDbConnection> _connectionStore;
@@ -22,13 +22,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		private readonly Store<ParameterId, IDbDataParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
-		public SqlProxy(Action<QueryCriteria> queryRecorder, Action<QueryCriteria> scalarQueryRecorder)
+		public SqlProxy(Func<IDbConnection> connectionGenerator, Action<QueryCriteria> queryRecorder, Action<QueryCriteria> scalarQueryRecorder)
 		{
+			if (connectionGenerator == null)
+				throw new ArgumentNullException(nameof(connectionGenerator));
 			if (queryRecorder == null)
 				throw new ArgumentNullException(nameof(queryRecorder));
 			if (scalarQueryRecorder == null)
 				throw new ArgumentNullException(nameof(scalarQueryRecorder));
 
+			_connectionGenerator = connectionGenerator;
 			_queryRecorder = queryRecorder;
 			_scalarQueryRecorder = scalarQueryRecorder;
 

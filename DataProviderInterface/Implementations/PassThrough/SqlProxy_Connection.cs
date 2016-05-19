@@ -1,5 +1,5 @@
-﻿using System.Data;
-using System.Data.SqlClient;
+﻿using System;
+using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -7,7 +7,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public ConnectionId GetNewConnectionId() { return _connectionStore.Add(new SqlConnection()); }
+		public ConnectionId GetNewConnectionId()
+		{
+			var connection = _connectionGenerator();
+			if (connection == null)
+				throw new Exception("_connectionGenerator returned null - this is not acceptable");
+			return _connectionStore.Add(connection);
+		}
 
 		public string GetConnectionString(ConnectionId connectionId) { return _connectionStore.Get(connectionId).ConnectionString; }
 		public void SetConnectionString(ConnectionId connectionId, string value) { _connectionStore.Get(connectionId).ConnectionString = value; }
