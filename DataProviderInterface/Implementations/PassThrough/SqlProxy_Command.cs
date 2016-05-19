@@ -95,15 +95,17 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public int ExecuteNonQuery(CommandId commandId)
 		{
 			ThrowForAnyNonInputOnlyParameters(commandId);
-			var command = _commandStore.Get(commandId);
-			return command.ExecuteNonQuery();
+			var queryCriteria = TryToGetQueryCriteria(commandId);
+			if (queryCriteria != null)
+				_nonQueryRowCountRecorder(queryCriteria);
+			return _commandStore.Get(commandId).ExecuteNonQuery();
 		}
 		public object ExecuteScalar(CommandId commandId)
 		{
 			ThrowForAnyNonInputOnlyParameters(commandId);
 			var queryCriteria = TryToGetQueryCriteria(commandId);
 			if (queryCriteria != null)
-				_queryRecorder(queryCriteria);
+				_scalarQueryRecorder(queryCriteria);
 			return _commandStore.Get(commandId).ExecuteScalar();
 		}
 		public DataReaderId ExecuteReader(CommandId commandId, CommandBehavior behavior = CommandBehavior.Default)

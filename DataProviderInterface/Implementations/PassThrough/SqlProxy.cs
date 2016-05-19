@@ -14,15 +14,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 	public sealed partial class SqlProxy : ISqlProxy
 	{
 		private readonly Func<IDbConnection> _connectionGenerator;
-		private readonly Action<QueryCriteria> _queryRecorder;
-		private readonly Action<QueryCriteria> _scalarQueryRecorder;
+		private readonly Action<QueryCriteria> _queryRecorder, _scalarQueryRecorder, _nonQueryRowCountRecorder;
 		private readonly Store<ConnectionId, IDbConnection> _connectionStore;
 		private readonly Store<CommandId, IDbCommand> _commandStore;
 		private readonly Store<TransactionId, IDbTransaction> _transactionStore;
 		private readonly Store<ParameterId, IDbDataParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
-		public SqlProxy(Func<IDbConnection> connectionGenerator, Action<QueryCriteria> queryRecorder, Action<QueryCriteria> scalarQueryRecorder)
+		public SqlProxy(
+			Func<IDbConnection> connectionGenerator,
+			Action<QueryCriteria> queryRecorder,
+			Action<QueryCriteria> scalarQueryRecorder,
+			Action<QueryCriteria> nonQueryRowCountRecorder)
 		{
 			if (connectionGenerator == null)
 				throw new ArgumentNullException(nameof(connectionGenerator));
@@ -30,10 +33,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new ArgumentNullException(nameof(queryRecorder));
 			if (scalarQueryRecorder == null)
 				throw new ArgumentNullException(nameof(scalarQueryRecorder));
-
+			if (nonQueryRowCountRecorder == null)
+				throw new ArgumentNullException(nameof(nonQueryRowCountRecorder));
+			
 			_connectionGenerator = connectionGenerator;
 			_queryRecorder = queryRecorder;
 			_scalarQueryRecorder = scalarQueryRecorder;
+			_nonQueryRowCountRecorder = nonQueryRowCountRecorder;
 
 			_connectionStore = new Store<ConnectionId, IDbConnection>(() => new ConnectionId(Guid.NewGuid()));
 			_commandStore = new Store<CommandId, IDbCommand>(() => new CommandId(Guid.NewGuid()));
