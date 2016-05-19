@@ -25,10 +25,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			var command = _commandStore.Get(commandId);
 			if (command.Connection == null)
 				return null;
-			var sqlConnection = command.Connection as SqlConnection;
-			if (sqlConnection == null)
-				throw new Exception("All connnections should be of type SqlConnection, but this one is \"" + command.Connection.GetType() + "\")");
-			return _connectionStore.GetIdFor(sqlConnection);
+			return _connectionStore.GetIdFor(command.Connection);
 		}
 		public void SetConnection(CommandId commandId, ConnectionId? connectionId)
 		{
@@ -54,10 +51,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			var command = _commandStore.Get(commandId);
 			if (command.Transaction == null)
 				return null;
-			var sqlTransaction = command.Transaction as SqlTransaction;
-			if (sqlTransaction == null)
-				throw new Exception("All connnections should be of type SqlTransaction, but this one is \"" + command.Transaction.GetType() + "\")");
-			return _transactionStore.GetIdFor(sqlTransaction);
+			return _transactionStore.GetIdFor(command.Transaction);
 		}
 
 		public void SetTransaction(CommandId commandId, TransactionId? transactionId)

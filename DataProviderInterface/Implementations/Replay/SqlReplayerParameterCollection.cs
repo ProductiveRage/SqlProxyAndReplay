@@ -6,12 +6,11 @@ using System.Linq;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay
 {
-	public sealed class SqlReplayerParameterCollection : IDataParameterCollection, IEnumerable<SqlReplayerParameter>
 	{
-		private readonly List<SqlReplayerParameter> _parameters;
+		private readonly List<IDbDataParameter> _parameters;
 		public SqlReplayerParameterCollection()
 		{
-			_parameters = new List<SqlReplayerParameter>();
+			_parameters = new List<IDbDataParameter>();
 		}
 
 		public object this[int index]
@@ -37,9 +36,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		{
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
-			var parameter = value as SqlReplayerParameter;
+			var parameter = value as IDbDataParameter;
 			if (parameter == null)
-				throw new ArgumentException($"value must be a {typeof(SqlReplayerParameter)}");
+				throw new ArgumentException($"value must be a {typeof(IDbDataParameter)}");
 			_parameters.Add(parameter);
 			return _parameters.Count;
 		}
@@ -64,7 +63,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			throw new NotImplementedException(); // TODO
 		}
 
-		public IEnumerator<SqlReplayerParameter> GetEnumerator() { return _parameters.GetEnumerator(); }
+		public IEnumerator<IDbDataParameter> GetEnumerator() { return _parameters.GetEnumerator(); }
 		IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
 
 		public int IndexOf(object value)

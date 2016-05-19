@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
+﻿using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -8,14 +6,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{
-		public ConnectionId GetConnection(TransactionId transactionId)
-		{
-			var transaction = _transactionStore.Get(transactionId);
-			var sqlConnection = transaction.Connection as SqlConnection;
-			if (sqlConnection == null)
-				throw new Exception("All connnections should be of type SqlConnection, but this one is \"" + transaction.Connection.GetType() + "\")");
-			return _connectionStore.GetIdFor(sqlConnection);
-		}
+		public ConnectionId GetConnection(TransactionId transactionId) { return _connectionStore.GetIdFor(_transactionStore.Get(transactionId).Connection); }
 
 		public IsolationLevel GetIsolationLevel(TransactionId transactionId) { return _transactionStore.Get(transactionId).IsolationLevel; }
 
