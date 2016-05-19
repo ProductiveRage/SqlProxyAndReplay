@@ -15,10 +15,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		private readonly Func<QueryCriteria, IDataReader> _dataRetriever;
 		private readonly Func<QueryCriteria, Tuple<object>> _scalarDataRetriever;
 		private readonly Func<QueryCriteria, int?> _nonQueryRowCountDataRetriever;
-		private readonly Store<ConnectionId, SqlReplayerConnection> _connectionStore;
-		private readonly Store<CommandId, SqlReplayerCommand> _commandStore;
-		private readonly Store<TransactionId, SqlReplayerTransaction> _transactionStore;
-		private readonly Store<ParameterId, SqlReplayerParameter> _parameterStore;
+		private readonly Store<ConnectionId, IDbConnection> _connectionStore;
+		private readonly Store<CommandId, IDbCommand> _commandStore;
+		private readonly Store<TransactionId, IDbTransaction> _transactionStore;
+		private readonly Store<ParameterId, IDbDataParameter> _parameterStore;
 		private readonly Store<DataReaderId, IDataReader> _readerStore;
 		private readonly ConcurrentParameterToCommandLookup _parametersToTidy;
 		public SqlReplayer(
@@ -37,10 +37,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_scalarDataRetriever = scalarDataRetriever;
 			_nonQueryRowCountDataRetriever = nonQueryRowCountDataRetriever;
 
-			_connectionStore = new Store<ConnectionId, SqlReplayerConnection>(() => new ConnectionId(Guid.NewGuid()));
-			_commandStore = new Store<CommandId, SqlReplayerCommand>(() => new CommandId(Guid.NewGuid()));
-			_transactionStore = new Store<TransactionId, SqlReplayerTransaction>(() => new TransactionId(Guid.NewGuid()));
-			_parameterStore = new Store<ParameterId, SqlReplayerParameter>(() => new ParameterId(Guid.NewGuid()));
+			_connectionStore = new Store<ConnectionId, IDbConnection>(() => new ConnectionId(Guid.NewGuid()));
+			_commandStore = new Store<CommandId, IDbCommand>(() => new CommandId(Guid.NewGuid()));
+			_transactionStore = new Store<TransactionId, IDbTransaction>(() => new TransactionId(Guid.NewGuid()));
+			_parameterStore = new Store<ParameterId, IDbDataParameter>(() => new ParameterId(Guid.NewGuid()));
 			_readerStore = new Store<DataReaderId, IDataReader>(() => new DataReaderId(Guid.NewGuid()));
 
 			// Parameters are not disposed of individually (unlike connections, commands, transactions and readers) - instead, the parameters in
@@ -86,11 +86,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public ConnectionId? GetConnection(CommandId commandId)
 		{
-			throw new NotImplementedException(); // TODO
+			var command = _commandStore.Get(commandId);
+			if (command.Connection == null)
+				return null;
+			return _connectionStore.GetIdFor(command.Connection);
 		}
 		public void SetConnection(CommandId commandId, ConnectionId? connectionId)
 		{
-			throw new NotImplementedException(); // TODO
+			var command = _commandStore.Get(commandId);
+			if (connectionId == null)
+				command.Connection = null;
+			else
+				command.Connection = _connectionStore.Get(connectionId.Value);
 		}
 
 		public ParameterId CreateParameter(CommandId commandId)
@@ -105,7 +112,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public TransactionId? GetTransaction(CommandId commandId)
 		{
-			throw new NotImplementedException(); // TODO
+			var command = _commandStore.Get(commandId);
+			if (command.Transaction == null)
+				return null;
+			return _transactionStore.GetIdFor(command.Transaction);
 		}
 		public void SetTransaction(CommandId commandId, TransactionId? transactionId) { _commandStore.Get(commandId).Transaction = (transactionId == null) ? null : _transactionStore.Get(transactionId.Value); }
 
