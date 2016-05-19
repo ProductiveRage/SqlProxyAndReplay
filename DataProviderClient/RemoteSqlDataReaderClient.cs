@@ -106,7 +106,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public DataTable GetSchemaTable() { ThrowIfDisposed(); return _reader.GetSchemaTable(_readerId); }
 		public string GetString(int i) { ThrowIfDisposed(); return _reader.GetString(_readerId, i); }
 		public object GetValue(int i) { ThrowIfDisposed(); return _reader.GetValue(_readerId, i); }
-		public int GetValues(object[] values) { ThrowIfDisposed(); return _reader.GetValues(_readerId, values); }
+		public int GetValues(object[] values)
+		{
+			// When messages are passed over the wire, the data is serialised here then deserialised on the other end and then the response
+			// is serialised and returned and deserialised here. That means that the "values" reference that is populated on the other end
+			// is not the same as the reference here - so we need to overwrite the input array with the data from the response message.
+			ThrowIfDisposed();
+			var result = _reader.GetValues(_readerId, values);
+			var numberOfObjectsPopulatedInArray = result.Item1;
+			var valuesRead = result.Item2;
+			Array.Copy(valuesRead, values, numberOfObjectsPopulatedInArray);
+			return numberOfObjectsPopulatedInArray;
+		}
 
 		private void ThrowIfDisposed()
 		{

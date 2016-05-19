@@ -70,6 +70,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).GetSchemaTable(); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
 		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
-		public int GetValues(DataReaderId readerId, object[] values) { return _readerStore.Get(readerId).GetValues(values); }
+		public Tuple<int, object[]> GetValues(DataReaderId readerId, object[] values)
+		{
+			// When messages are passed over the write, the "buffer" reference on the client is serialised and then deserialised here, so
+			// it's not the same array. With an IDataReader, buffer WOULD be populated - to approximate this, we have to return a new array
+			// and the client has to write its contents over the original array's contents.
+			var lengthRead = _readerStore.Get(readerId).GetValues(values);
+			return Tuple.Create(lengthRead, values);
+		}
 	}
 }

@@ -196,15 +196,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public object GetValue(ParameterId parameterId) { return _parameterStore.Get(parameterId).Value; }
 		public void SetValue(ParameterId parameterId, object value) { _parameterStore.Get(parameterId).Value = value; }
 
-		public ConnectionId GetConnection(TransactionId transactionId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public ConnectionId GetConnection(TransactionId transactionId) { return _connectionStore.GetIdFor(_transactionStore.Get(transactionId).Connection); }
 
-		public IsolationLevel GetIsolationLevel(TransactionId transactionId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
+		public IsolationLevel GetIsolationLevel(TransactionId transactionId) { return _transactionStore.Get(transactionId).IsolationLevel; }
 
 		public void Commit(TransactionId transactionId) { _transactionStore.Get(transactionId).Commit(); }
 		public void Rollback(TransactionId transactionId) { _transactionStore.Get(transactionId).Rollback(); }
@@ -226,15 +220,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			_readerStore.Remove(readerId);
 		}
 
-		public int GetDepth(DataReaderId readerId)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
+		public int GetDepth(DataReaderId readerId) { return _readerStore.Get(readerId).Depth; }
 		public int GetFieldCount(DataReaderId readerId) { return _readerStore.Get(readerId).FieldCount; }
-
 		public bool GetIsClosed(DataReaderId readerId) { return _readerStore.Get(readerId).IsClosed; }
-
 		public int GetRecordsAffected(DataReaderId readerId) { return _readerStore.Get(readerId).RecordsAffected; }
 
 		public bool IsDBNull(DataReaderId readerId, int i) { return _readerStore.Get(readerId).IsDBNull(i); }
@@ -242,16 +230,33 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public byte GetByte(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetByte(i); }
 		public Tuple<long, byte[]> GetBytes(DataReaderId readerId, int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
 		{
-			throw new NotImplementedException(); // TODO
+			// When messages are passed over the write, the "buffer" reference on the client is serialised and then deserialised here, so
+			// it's not the same array. With an IDataReader, buffer WOULD be populated - to approximate this, we have to return a new array
+			// and the client has to write its contents over the original array's contents.
+			var lengthRead = _readerStore.Get(readerId).GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+			return Tuple.Create(lengthRead, buffer);
 		}
 		public char GetChar(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetChar(i); }
 		public Tuple<long, char[]> GetChars(DataReaderId readerId, int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
 		{
-			throw new NotImplementedException(); // TODO
+			// When messages are passed over the write, the "buffer" reference on the client is serialised and then deserialised here, so
+			// it's not the same array. With an IDataReader, buffer WOULD be populated - to approximate this, we have to return a new array
+			// and the client has to write its contents over the original array's contents.
+			var lengthRead = _readerStore.Get(readerId).GetChars(i, fieldoffset, buffer, bufferoffset, length);
+			return Tuple.Create(lengthRead, buffer);
 		}
 		public DataReaderId GetData(DataReaderId readerId, int i)
 		{
-			throw new NotImplementedException(); // TODO
+			var reader = _readerStore.Get(readerId).GetData(i);
+			try
+			{
+				return _readerStore.Add(reader);
+			}
+			catch
+			{
+				reader.Dispose();
+				throw;
+			}
 		}
 		public string GetDataTypeName(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDataTypeName(i); }
 		public DateTime GetDateTime(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetDateTime(i); }
@@ -268,10 +273,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).GetSchemaTable(); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
 		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
-
-		public int GetValues(DataReaderId readerId, object[] values)
+		public Tuple<int, object[]> GetValues(DataReaderId readerId, object[] values)
 		{
-			throw new NotImplementedException(); // TODO
+			// When messages are passed over the write, the "buffer" reference on the client is serialised and then deserialised here, so
+			// it's not the same array. With an IDataReader, buffer WOULD be populated - to approximate this, we have to return a new array
+			// and the client has to write its contents over the original array's contents.
+			var lengthRead = _readerStore.Get(readerId).GetValues(values);
+			return Tuple.Create(lengthRead, values);
 		}
 	}
 }
