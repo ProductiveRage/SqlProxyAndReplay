@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.IO;
 using System.Threading;
 using Dapper;
 using ProductiveRage.SqlProxyAndReplay.DataProviderClient;
@@ -34,7 +35,7 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 
 			new Thread(() =>
 			{
-				var cache = new DictionaryCache(SqlRunner.Instance, infoLogger: Console.WriteLine);
+				var cache = new DiskCache(SqlRunner.Instance, cacheFolder: new DirectoryInfo("Cache"), infoLogger: Console.WriteLine);
 				using (var proxyHost = new Host(new SqlProxy(() => new SqlConnection(), cache.QueryRecorder, cache.ScalarQueryRecorder, cache.NonQueryRowCountRecorder), proxyEndPoint))
 				{
 					using (var replayHost = new Host(new SqlReplayer(cache.DataRetriever, cache.ScalarDataRetriever, cache.NonQueryRowCountRetriever), replayEndPoint))
