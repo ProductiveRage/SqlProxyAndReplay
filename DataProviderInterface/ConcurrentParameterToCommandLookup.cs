@@ -15,7 +15,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 	/// around adding or removing parameters for a given command since that sort of work is commonly done on a single thread and commands not shared between
 	/// threads.
 	/// </summary>
-	public sealed class ConcurrentParameterToCommandLookup
+	internal sealed class ConcurrentParameterToCommandLookup
 	{
 		private readonly ConcurrentDictionary<CommandId, SimpleImmutableList<ParameterId>> _data;
 		public ConcurrentParameterToCommandLookup()

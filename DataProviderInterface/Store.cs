@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 {
-	public sealed class Store<TId, TValue> where TValue : class
+	internal sealed class Store<TId, TValue> where TValue : class
 	{
 		private readonly ConcurrentDictionary<TId, TValue> _data;
 		private readonly Func<TId> _idGenerator;
