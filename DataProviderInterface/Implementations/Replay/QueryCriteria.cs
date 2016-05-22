@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay
 {
+	[Serializable]
 	public sealed class QueryCriteria
 	{
 		public QueryCriteria(string connectionString, string commandText, CommandType commandType, IEnumerable<ParameterInformation> parameters)
@@ -56,6 +57,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			}
 		}
 
+		[Serializable]
 		public sealed class ParameterInformation
 		{
 			public ParameterInformation(string parameterName, object value, DbType dbType, bool isNullable, ParameterDirection direction, byte scale, int size)
