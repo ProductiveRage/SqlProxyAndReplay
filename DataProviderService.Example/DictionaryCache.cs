@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.SqlProxyAndReplay.Tester
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.Example
 {
 	public sealed class DictionaryCache
 	{

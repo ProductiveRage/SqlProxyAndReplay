@@ -5,7 +5,7 @@ using Dapper;
 using ProductiveRage.SqlProxyAndReplay.DataProviderClient;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
-using ProductiveRage.SqlProxyAndReplay.DataProviderServiceProductiveRage.SqlProxyAndReplay.Tester;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.Example;
 using Xunit;
 
 namespace ProductiveRage.SqlProxyAndReplay.Tests

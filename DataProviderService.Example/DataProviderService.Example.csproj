@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{400142E5-02B6-4C0D-B7B0-BAA0A766D046}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{0D045E5E-83E2-47ED-8A33-8888BF598D36}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ProductiveRage.SqlProxyAndReplay.DataProviderServiceTester</RootNamespace>
-    <AssemblyName>ProductiveRage.SqlProxyAndReplay.DataProviderServiceTester</AssemblyName>
+    <RootNamespace>ProductiveRage.SqlProxyAndReplay.DataProviderService.Example</RootNamespace>
+    <AssemblyName>ProductiveRage.SqlProxyAndReplay.DataProviderService.Example</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -43,23 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ISqlRunner.cs" />
-    <Compile Include="SqlRunner.cs" />
     <Compile Include="DictionaryCache.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ISqlRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
+    <Compile Include="SqlRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataProviderInterface\DataProviderInterface.csproj">
       <Project>{7c0cd613-62a0-46d6-8912-8ef080da0e4b}</Project>
       <Name>DataProviderInterface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataProviderService\DataProviderService.csproj">
-      <Project>{3c08ad2a-f6f3-41f4-ad8e-d703e59b55db}</Project>
-      <Name>DataProviderService</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

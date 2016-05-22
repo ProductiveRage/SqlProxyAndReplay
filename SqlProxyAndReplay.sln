@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderService", "Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderInterface", "DataProviderInterface\DataProviderInterface.csproj", "{7C0CD613-62A0-46D6-8912-8EF080DA0E4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderServiceTester", "DataProviderServiceTester\DataProviderServiceTester.csproj", "{400142E5-02B6-4C0D-B7B0-BAA0A766D046}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderClient", "DataProviderClient\DataProviderClient.csproj", "{86DED133-2D78-4723-9243-211E92747FFA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{055EF204-6EBC-4448-A781-EF2880DC5D29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderService.Example", "DataProviderService.Example\DataProviderService.Example.csproj", "{0D045E5E-83E2-47ED-8A33-8888BF598D36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		{7C0CD613-62A0-46D6-8912-8EF080DA0E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C0CD613-62A0-46D6-8912-8EF080DA0E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C0CD613-62A0-46D6-8912-8EF080DA0E4B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{400142E5-02B6-4C0D-B7B0-BAA0A766D046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{400142E5-02B6-4C0D-B7B0-BAA0A766D046}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{400142E5-02B6-4C0D-B7B0-BAA0A766D046}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{400142E5-02B6-4C0D-B7B0-BAA0A766D046}.Release|Any CPU.Build.0 = Release|Any CPU
 		{86DED133-2D78-4723-9243-211E92747FFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86DED133-2D78-4723-9243-211E92747FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86DED133-2D78-4723-9243-211E92747FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{055EF204-6EBC-4448-A781-EF2880DC5D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D045E5E-83E2-47ED-8A33-8888BF598D36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D045E5E-83E2-47ED-8A33-8888BF598D36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D045E5E-83E2-47ED-8A33-8888BF598D36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D045E5E-83E2-47ED-8A33-8888BF598D36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
