@@ -43,6 +43,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="SerialisingCache.cs" />
     <Compile Include="DictionaryCache.cs" />
     <Compile Include="ISqlRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

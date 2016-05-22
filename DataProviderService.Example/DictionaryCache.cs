@@ -1,110 +1,72 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Data;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.Example
 {
-	public sealed class DictionaryCache
+	public sealed class DictionaryCache : SerialisingCache
 	{
-		private readonly ISqlRunner _sqlRunner;
-		private readonly Action<string> _infoLogger;
 		private readonly ConcurrentDictionary<QueryCriteria, byte[]> _serialisedQueryAndResultsCache;
 		private readonly ConcurrentDictionary<QueryCriteria, object> _serialisedQueryAndScalarResultsCache;
 		private readonly ConcurrentDictionary<QueryCriteria, int> _serialisedQueryAndNonQueryRowCountCache;
-		public DictionaryCache(ISqlRunner sqlRunner, Action<string> infoLogger)
+		public DictionaryCache(ISqlRunner sqlRunner, Action<string> infoLogger) : base(sqlRunner, infoLogger)
 		{
-			if (sqlRunner == null)
-				throw new ArgumentNullException(nameof(sqlRunner));
-			if (infoLogger == null)
-				throw new ArgumentNullException(nameof(infoLogger));
-
-			_sqlRunner = sqlRunner;
-			_infoLogger = infoLogger;
 			_serialisedQueryAndResultsCache = new ConcurrentDictionary<QueryCriteria, byte[]>();
 			_serialisedQueryAndScalarResultsCache = new ConcurrentDictionary<QueryCriteria, object>();
 			_serialisedQueryAndNonQueryRowCountCache = new ConcurrentDictionary<QueryCriteria, int>();
 		}
 
-		public void QueryRecorder(QueryCriteria query)
+		/// <summary>
+		/// This should never have to deal with a null query or null data reference
+		/// </summary>
+		protected override void DataSetRecorder(QueryCriteria query, byte[] data)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
+			if (data == null)
+				throw new ArgumentNullException(nameof(data));
 
-			_infoLogger("LIVE[ExecuteReader]: " + query.CommandText);
-			using (var dataSet = _sqlRunner.Execute(query))
-			{
-				dataSet.RemotingFormat = SerializationFormat.Binary;
-				using (var stream = new MemoryStream())
-				{
-					(new BinaryFormatter()).Serialize(stream, dataSet);
-					_serialisedQueryAndResultsCache.TryAdd(query, stream.ToArray());
-				}
-			}
+			_serialisedQueryAndResultsCache.TryAdd(query, data);
 		}
 
-		public void ScalarQueryRecorder(QueryCriteria query)
+		/// <summary>
+		/// This should never have to deal with a null query reference (though it is feasible that the value reference may be null)
+		/// </summary>
+		protected override void ScalarRecorder(QueryCriteria query, object value)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
 
-			_infoLogger("LIVE[ExecuteScalar]: " + query.CommandText);
-			_serialisedQueryAndScalarResultsCache.TryAdd(query, _sqlRunner.ExecuteScalar(query));
+			_serialisedQueryAndScalarResultsCache.TryAdd(query, value);
 		}
 
-		public void NonQueryRowCountRecorder(QueryCriteria query)
+		/// <summary>
+		/// This should never have to deal with a null query reference
+		/// </summary>
+		protected override void RowCountRecorder(QueryCriteria query, int rowCount)
 		{
 			if (query == null)
 				throw new ArgumentNullException(nameof(query));
 
-			_infoLogger("LIVE[ExecuteNonQuery]: " + query.CommandText);
-			_serialisedQueryAndNonQueryRowCountCache.TryAdd(query, _sqlRunner.ExecuteNonQuery(query));
+			_serialisedQueryAndNonQueryRowCountCache.TryAdd(query, rowCount);
 		}
 
-		public IDataReader DataRetriever(QueryCriteria query)
+		protected override byte[] DataSetRetriever(QueryCriteria query)
 		{
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			_infoLogger("REPLAY[ExecuteReader]: " + query.CommandText);
 			byte[] serialisedData;
-			if (!_serialisedQueryAndResultsCache.TryGetValue(query, out serialisedData))
-				return null;
-
-			using (var stream = new MemoryStream(serialisedData))
-			{
-				var deserialisedData = (DataSet)(new BinaryFormatter()).Deserialize(stream);
-				return deserialisedData.CreateDataReader();
-			}
-
+			return _serialisedQueryAndResultsCache.TryGetValue(query, out serialisedData) ? serialisedData : null;
 		}
 
-		public Tuple<object> ScalarDataRetriever(QueryCriteria query)
+		protected override Tuple<object> ScalarRetriever(QueryCriteria query)
 		{
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			_infoLogger("REPLAY[ExecuteScalar]: " + query.CommandText);
-			object result;
-			if (!_serialisedQueryAndScalarResultsCache.TryGetValue(query, out result))
-				return null;
-
-			return Tuple.Create(result);
+			object value;
+			return _serialisedQueryAndScalarResultsCache.TryGetValue(query, out value) ? Tuple.Create(value) : null;
 		}
 
-		public int? NonQueryRowCountRetriever(QueryCriteria query)
+		protected override int? RowCountRetriever(QueryCriteria query)
 		{
-			if (query == null)
-				throw new ArgumentNullException(nameof(query));
-
-			_infoLogger("REPLAY[ExecuteNonQuery]: " + query.CommandText);
 			int rowCount;
-			if (!_serialisedQueryAndNonQueryRowCountCache.TryGetValue(query, out rowCount))
-				return null;
-
-			return rowCount;
+			return _serialisedQueryAndNonQueryRowCountCache.TryGetValue(query, out rowCount) ? rowCount : (int?)null;
 		}
 	}
 }
