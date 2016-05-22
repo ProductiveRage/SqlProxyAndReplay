@@ -53,7 +53,6 @@ namespace ProductiveRage.SqlProxyAndReplay.Tester
 			if (replayEndPoint == null)
 				throw new ArgumentNullException(nameof(replayEndPoint));
 
-			// Note: Need the DataProviderServiceTester project to be running in order for these connections to be handled
 			var connectionString =
 				new SqlConnectionStringBuilder
 				{
