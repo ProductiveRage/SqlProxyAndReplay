@@ -27,20 +27,24 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public string ConnectionString { get; set; }
 
-		public int ConnectionTimeout
-		{
-			get
-			{
-				throw new NotImplementedException(); // TODO
-			}
-		}
+		/// <summary>
+		/// This shouldn't be relevant when returning data from cache somewhere, so just return a default value
+		/// </summary>
+		public int ConnectionTimeout { get { return 15; } }
 
-		public string Database
+		/// <summary>
+		/// This also shouldn't be relevant when returning data from cache somewhere, so just return a default value (could try to parse it out
+		/// of the connection string but we have no knowledge what type of database that the connection string is for and so there would be no
+		/// reliable way to do so)
+		/// </summary>
+		public string Database { get { return "*SQLProxyAndReplay-Replayer*"; } }
+
+		/// <summary>
+		/// For the same reason as why the Database property returns a default value, this can't reliably be implemented and so it throws
+		/// </summary>
+		public void ChangeDatabase(string databaseName)
 		{
-			get
-			{
-				throw new NotImplementedException(); // TODO
-			}
+			throw new NotImplementedException($"When communicating with a {Database} endpoint, the ChangeDatabase method is not available");
 		}
 
 		public ConnectionState State
@@ -59,11 +63,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public SqlReplayerTransaction BeginTransaction(IsolationLevel il = IsolationLevel.ReadCommitted) { return new SqlReplayerTransaction(this, il); }
 		IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il) { return BeginTransaction(il); }
 		IDbTransaction IDbConnection.BeginTransaction() { return BeginTransaction(); }
-
-		public void ChangeDatabase(string databaseName)
-		{
-			throw new NotImplementedException(); // TODO
-		}
 
 		public void Open() { }
 		public void Close() { }
