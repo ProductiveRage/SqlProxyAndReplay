@@ -136,6 +136,23 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			}
 		}
 
+		public void CopyTo(Array array, int index)
+		{
+			if (array == null)
+				throw new ArgumentNullException(nameof(array));
+			if (index < 0)
+				throw new IndexOutOfRangeException();
+			lock (_parameters)
+			{
+				if ((index + _parameters.Count) > array.Length)
+				{
+					((IList)_parameters).CopyTo(array, index);
+					return;
+				}
+			}
+			throw new IndexOutOfRangeException();
+		}
+
 		public int IndexOf(object value)
 		{
 			if (value == null)
