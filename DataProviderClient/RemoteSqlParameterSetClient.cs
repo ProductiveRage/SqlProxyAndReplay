@@ -119,7 +119,20 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public void CopyTo(Array array, int index)
 		{
-			throw new NotImplementedException(); // TODO
+			if (array == null)
+				throw new ArgumentNullException(nameof(array));
+			if (index < 0)
+				throw new IndexOutOfRangeException();
+
+			var numberOfParameters = _parameters.GetCount(_commandId);
+			for (var i = 0; i < numberOfParameters; i++)
+			{
+				var parameterId = _parameters.GetParameterByIndex(_commandId, i);
+				var arrayIndex = i + index;
+				if (arrayIndex >= array.Length)
+					throw new ArgumentException("Destination array was not long enough.Check destIndex and length, and the array's lower bounds");
+				array.SetValue(new RemoteSqlParameterClient(_parameter, parameterId, _commandId), arrayIndex);
+			}
 		}
 
 		public IEnumerator GetEnumerator() { return new RemoteSqlParameterSetClientEnumerator(this); }

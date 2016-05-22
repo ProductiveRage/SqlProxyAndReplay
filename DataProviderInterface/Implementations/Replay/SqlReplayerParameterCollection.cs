@@ -136,11 +136,6 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			}
 		}
 
-		public void CopyTo(Array array, int index)
-		{
-			throw new NotImplementedException(); // TODO
-		}
-
 		public int IndexOf(object value)
 		{
 			if (value == null)
