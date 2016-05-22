@@ -56,7 +56,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 
-			foreach (var keyValuePair in _data) // TODO: Maintain a reverse lookup store to avoid this enumeration?
+			foreach (var keyValuePair in _data)
 			{
 				if (keyValuePair.Value == value)
 					return keyValuePair.Key;
