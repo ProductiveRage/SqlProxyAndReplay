@@ -126,32 +126,62 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 
 		public int IndexOf(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			// Note: This method has this signature as IDataParameterCollection implements IList, which has this method (which is why value does not have
+			// a more specific type - it has to throw at runtime if an unacceptable value is provided)
+			var parameter = GetAsRemoteSqlParameterClient(value);
+			if (!parameter.CommandId.Equals(_commandId))
+			{
+				// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+				// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+				// by any real code, even if it's possible with the SqlCommand class)
+				throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+			}
+			return _parameters.IndexOf(_commandId, parameter.ParameterId);
 		}
 
 		public int IndexOf(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			return _parameters.IndexOf(_commandId, parameterName);
 		}
 
 		public void Insert(int index, object value)
 		{
-			throw new NotImplementedException(); // TODO
+			// Note: This method has this signature as IDataParameterCollection implements IList, which has this method (which is why value does not have
+			// a more specific type - it has to throw at runtime if an unacceptable value is provided)
+			var parameter = GetAsRemoteSqlParameterClient(value);
+			if (!parameter.CommandId.Equals(_commandId))
+			{
+				// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+				// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+				// by any real code, even if it's possible with the SqlCommand class)
+				throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+			}
+			_parameters.Insert(_commandId, index, parameter.ParameterId);
 		}
 
 		public void Remove(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			// Note: This method has this signature as IDataParameterCollection implements IList, which has this method (which is why value does not have
+			// a more specific type - it has to throw at runtime if an unacceptable value is provided)
+			var parameter = GetAsRemoteSqlParameterClient(value);
+			if (!parameter.CommandId.Equals(_commandId))
+			{
+				// The server has to keep track of what parameters are owned by what commands for book-keeping purposes, allow parameters to be created by
+				// one command and used by others would make that much more complicated and so it's not supported (hopefully it's an edge case and not used
+				// by any real code, even if it's possible with the SqlCommand class)
+				throw new ArgumentException($"A parameter that is initialised via a call to CreateParameter on one {typeof(RemoteSqlCommandClient)} may not be reassigned for use on a different instance");
+			}
+			_parameters.Remove(_commandId, parameter.ParameterId);
 		}
 
 		public void RemoveAt(int index)
 		{
-			throw new NotImplementedException(); // TODO
+			_parameters.RemoveAt(_commandId, index);
 		}
 
 		public void RemoveAt(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			_parameters.RemoveAt(_commandId, parameterName);
 		}
 
 		// These properties are only required to the various interfaces that IDataParameterCollection implements (IList and ICollection), they're not very

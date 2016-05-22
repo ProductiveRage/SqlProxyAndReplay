@@ -25,10 +25,25 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 
 		[OperationContract]
 		void Clear(CommandId commandId);
-		[OperationContract(Name = "ContainsParameterWithId")]
 
+		[OperationContract(Name = "ContainsParameterWithId")]
 		bool Contains(CommandId commandId, ParameterId parameterId);
 		[OperationContract(Name = "ContainsParameterWithName")]
 		bool Contains(CommandId commandId, string parameterName);
+
+		[OperationContract(Name = "IndexOfParameterById")]
+		int IndexOf(CommandId commandId, ParameterId parameterId);
+		[OperationContract(Name = "IndexOfParameterByName")]
+		int IndexOf(CommandId commandId, string parameterName);
+
+		[OperationContract]
+		void Insert(CommandId commandId, int index, ParameterId parameterId);
+
+		[OperationContract]
+		void Remove(CommandId commandId, ParameterId parameterId);
+		[OperationContract(Name = "RemoveParameterByIndex")]
+		void RemoveAt(CommandId commandId, int index);
+		[OperationContract(Name = "RemoveParameterByName")]
+		void RemoveAt(CommandId commandId, string parameterName);
 	}
 }

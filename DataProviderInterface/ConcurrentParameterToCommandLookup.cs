@@ -51,6 +51,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 			);
 		}
 
+		public void Remove(CommandId commandId, ParameterId parameterId)
+		{
+			while (true)
+			{
+				SimpleImmutableList<ParameterId> parameters;
+				if (!_data.TryGetValue(commandId, out parameters))
+					return;
+				if (_data.TryUpdate(commandId, newValue: parameters.Remove(parameterId), comparisonValue: parameters))
+					return;
+			}
+		}
+
 		public void RemoveAnyParametersFor(CommandId commandId, Action<ParameterId> optionalWhenRemoved = null)
 		{
 			SimpleImmutableList<ParameterId> parameters;
@@ -77,6 +89,32 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
 			public SimpleImmutableList<T> Add(T value)
 			{
 				return new SimpleImmutableList<T>(new Node(value, _nodeIfAny));
+			}
+
+			public SimpleImmutableList<T> Remove(T value)
+			{
+				// Could probably do this more efficiently (share more of a node chain in some cases) but this will do the job
+				var removedValue = false;
+				var newList = Empty;
+				var node = _nodeIfAny;
+				while (node != null)
+				{
+					if (AreValuesEqual(node.Value, value))
+						removedValue = true;
+					else
+						newList = newList.Add(value);
+					node = node.NextIfAny;
+				}
+				return removedValue ? newList : this;
+			}
+
+			private static bool AreValuesEqual(T x, T y)
+			{
+				if ((x == null) && (y == null))
+					return true;
+				else if ((x == null) || (y == null))
+					return false;
+				return x.Equals(y);
 			}
 
 			public IEnumerable<T> Enumerate()

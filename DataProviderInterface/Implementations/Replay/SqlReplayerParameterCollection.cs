@@ -16,14 +16,68 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 
 		public object this[int index]
 		{
-			get { return _parameters[index]; }
-			set { throw new NotImplementedException(); } // TODO
+			get
+			{
+				lock (_parameters)
+				{
+					if ((index >= 0) && (index < _parameters.Count))
+						return _parameters[index];
+				}
+				throw new IndexOutOfRangeException();
+			}
+			set
+			{
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+				var parameter = value as IDbDataParameter;
+				if (parameter == null)
+					throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+				lock (_parameters)
+				{
+					if ((index >= 0) && (index < _parameters.Count))
+					{
+						_parameters[index] = parameter;
+						return;
+					}
+				}
+				throw new IndexOutOfRangeException();
+			}
 		}
 
 		public object this[string parameterName]
 		{
-			get { return _parameters.FirstOrDefault(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase)); } // TODO: Is this correct? What happens for invalid parameterName?
-			set { throw new NotImplementedException(); } // TODO: What should this do? What happens for invalid parameterName?
+			get
+			{
+				lock (_parameters)
+				{
+					var parameter = _parameters.FirstOrDefault(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+					if (parameter != null)
+						return parameter;
+				}
+				throw new IndexOutOfRangeException();
+			}
+			set
+			{
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+				if (string.IsNullOrWhiteSpace(parameterName))
+					throw new ArgumentException($"Null/blank {nameof(parameterName)} specified");
+				var parameter = value as IDbDataParameter;
+				if (parameter == null)
+					throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+				lock (_parameters)
+				{
+					var indexedParameterToSet = _parameters
+						.Select((p, i) => new { Index = i, Parameter = p })
+						.FirstOrDefault(p => p.Parameter.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+					if (indexedParameterToSet != null)
+					{
+						_parameters[indexedParameterToSet.Index] = parameter;
+						return;
+					}
+				}
+				throw new IndexOutOfRangeException();
+			}
 		}
 
 		public int Count { get { return _parameters.Count; } }
@@ -39,24 +93,47 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 				throw new ArgumentNullException(nameof(value));
 			var parameter = value as IDbDataParameter;
 			if (parameter == null)
-				throw new ArgumentException($"value must be a {typeof(IDbDataParameter)}");
-			_parameters.Add(parameter);
-			return _parameters.Count;
+				throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+			lock (_parameters)
+			{
+				if (!_parameters.Contains(parameter))
+				{
+					_parameters.Add(parameter);
+					return _parameters.Count;
+				}
+			}
+			throw new ArgumentException("The parameter is already present in the Parameters collection");
 		}
 
 		public void Clear()
 		{
-			throw new NotImplementedException(); // TODO
+			lock (_parameters)
+			{
+				_parameters.Clear();
+			}
 		}
 
 		public bool Contains(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			var parameter = value as IDbDataParameter;
+			if (parameter == null)
+				throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+			lock (_parameters)
+			{
+				return _parameters.Contains(parameter);
+			}
 		}
 
 		public bool Contains(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			if (parameterName == null)
+				throw new ArgumentNullException(nameof(parameterName));
+			lock (_parameters)
+			{
+				return _parameters.Any(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+			}
 		}
 
 		public void CopyTo(Array array, int index)
@@ -64,37 +141,104 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 			throw new NotImplementedException(); // TODO
 		}
 
-		public IEnumerator<IDbDataParameter> GetEnumerator() { return _parameters.GetEnumerator(); }
-		IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-
 		public int IndexOf(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			var parameter = value as IDbDataParameter;
+			if (parameter == null)
+				throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+			lock (_parameters)
+			{
+				return _parameters.IndexOf(parameter);
+			}
 		}
 
 		public int IndexOf(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			if (parameterName == null)
+				throw new ArgumentNullException(nameof(parameterName));
+			lock (_parameters)
+			{
+				var parameter = _parameters
+					.Select((p, i) => new { Index = i, Parameter = p })
+					.FirstOrDefault(p => p.Parameter.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+				return (parameter == null) ? -1 : parameter.Index;
+			}
 		}
 
 		public void Insert(int index, object value)
 		{
-			throw new NotImplementedException(); // TODO
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			var parameter = value as IDbDataParameter;
+			if (parameter == null)
+				throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+			bool indexOutOfRange;
+			lock (_parameters)
+			{
+				indexOutOfRange = (index < 0) || (index > _parameters.Count);
+				if (!indexOutOfRange && !_parameters.Contains(parameter))
+				{
+					_parameters.Insert(index, parameter);
+					return;
+				}
+			}
+			if (indexOutOfRange)
+				throw new IndexOutOfRangeException();
+			throw new ArgumentException("The parameter is already present in the Parameters collection");
 		}
 
 		public void Remove(object value)
 		{
-			throw new NotImplementedException(); // TODO
+			var parameter = value as IDbDataParameter;
+			if (parameter == null)
+				throw new InvalidCastException($"The Parameter Collection only accepts non-null IDbDataParameter type objects, not {value.GetType()} objects");
+
+			lock (_parameters)
+			{
+				var indexedParameterToRemove = _parameters
+					.Select((p, i) => new { Index = i, Parameter = p })
+					.FirstOrDefault(p => p.Parameter == value);
+				if (indexedParameterToRemove != null)
+				{
+					_parameters.RemoveAt(indexedParameterToRemove.Index);
+					return;
+				}
+			}
+			throw new ArgumentException("Attempted to remove a parameter that is not contained by this  Parameter Collection");
 		}
 
 		public void RemoveAt(int index)
 		{
-			throw new NotImplementedException(); // TODO
+			lock (_parameters)
+			{
+				if ((index >= 0) && (index < _parameters.Count))
+				{
+					_parameters.RemoveAt(index);
+					return;
+				}
+			}
+			throw new IndexOutOfRangeException();
 		}
 
 		public void RemoveAt(string parameterName)
 		{
-			throw new NotImplementedException(); // TODO
+			lock (_parameters)
+			{
+				var indexedParameterToRemove = _parameters
+					.Select((p, i) => new { Index = i, Parameter = p })
+					.FirstOrDefault(p => p.Parameter.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+				if (indexedParameterToRemove != null)
+				{
+					_parameters.RemoveAt(indexedParameterToRemove.Index);
+					return;
+				}
+			}
+			throw new IndexOutOfRangeException();
 		}
+
+		public IEnumerator<IDbDataParameter> GetEnumerator() { return _parameters.GetEnumerator(); }
+		IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
 	}
 }
