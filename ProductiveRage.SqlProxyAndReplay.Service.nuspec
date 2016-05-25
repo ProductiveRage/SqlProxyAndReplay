@@ -10,7 +10,8 @@
     <projectUrl>https://github.com/ProductiveRage/SqlProxyAndReplay</projectUrl>
     <iconUrl>https://secure.gravatar.com/avatar/6a1f781d4d5e2d50dcff04f8f049767a?s=200</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Service to performance test code by removing the database dependency, in order to always return consistent data for known queries</description>
+    <summary>Service to performance test code by removing the database dependency, in order to always return consistent data for known queries</summary>
+    <description>For performance testing services that depend upon a SQL database, the service may be tested with known inputs and the SQL queries that are executed will be captured (along with their results). Then the service may be re-tested but the SQL proxy layer will return known results to the same SQL queries. So long as all of the same queries are repeated when the same inputs are passed to the service, the database will be removed from the test. This could be used to measure data access code performance but it is initially intended more to allow a service to run for a long time reliably (independent of any external database) in order enable investigations into hot paths and ways to reduce garbage collection load.</description>
     <copyright>Copyright 2016 ProductiveRage</copyright>
     <tags>C# SQL WCF</tags>
     <dependencies>
