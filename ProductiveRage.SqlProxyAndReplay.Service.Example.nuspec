@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ProductiveRage.SqlProxyAndReplay.Service.Example</id>
+    <title>ProductiveRage.SqlProxyAndReplay.Service.Example</title>
+    <version>1.0.0</version>
+    <authors>ProductiveRage</authors>
+    <owners>ProductiveRage</owners>
+    <licenseUrl>https://github.com/ProductiveRage/SqlProxyAndReplay/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/ProductiveRage/SqlProxyAndReplay</projectUrl>
+    <iconUrl>https://secure.gravatar.com/avatar/6a1f781d4d5e2d50dcff04f8f049767a?s=200</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Service to performance test code by removing the database dependency, in order to always return consistent data for known queries - this package is used in an example implementation of the service</description>
+    <copyright>Copyright 2016 ProductiveRage</copyright>
+    <tags>C# SQL WCF</tags>
+    <dependencies>
+      <dependency id="ProductiveRage.SqlProxyAndReplay.Interface" version="1.0.0" />
+      <dependency id="ProductiveRage.SqlProxyAndReplay.Service" version="1.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="ProductiveRage.SqlProxyAndReplay.DataProviderService.Example.dll" target="lib\net40" />
+    <file src="ProductiveRage.SqlProxyAndReplay.DataProviderService.Example.xml" target="lib\net40" />
+  </files>
+</package>
