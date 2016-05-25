@@ -28,6 +28,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>CS1591</NoWarn>
+    <DocumentationFile>bin\Release\ProductiveRage.SqlProxyAndReplay.DataProviderInterface.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
