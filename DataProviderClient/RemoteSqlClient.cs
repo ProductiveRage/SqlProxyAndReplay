@@ -11,16 +11,22 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private ISqlProxy _proxy;
 		private RemoteSqlConnectionClient _connection;
 		private bool _faulted, _disposed;
+		private readonly bool _disposeChannelFactory;
 		public RemoteSqlClient(string connectionString, Uri endPoint)
+			: this(connectionString, new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint)), disposeChannelFactory: true) { }
+		public RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory)
+			: this(connectionString, proxyChannelFactory, disposeChannelFactory: false) { }
+		private RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory, bool disposeChannelFactory)
 		{
 			if (connectionString == null)
 				throw new ArgumentNullException(nameof(connectionString));
-			if (endPoint == null)
-				throw new ArgumentNullException(nameof(endPoint));
+			if (proxyChannelFactory == null)
+				throw new ArgumentNullException(nameof(proxyChannelFactory));
 
 			try
 			{
-				_proxyChannelFactory = new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint));
+				_disposeChannelFactory = disposeChannelFactory;
+				_proxyChannelFactory = proxyChannelFactory;
 				_proxy = _proxyChannelFactory.CreateChannel();
 				((ICommunicationObject)_proxy).Faulted += SetFaulted;
 				_connection = new RemoteSqlConnectionClient(_proxy, connectionId: _proxy.GetNewConnectionId());
@@ -67,7 +73,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				_connection.Dispose();
 				proxyCommunicationObject.Close();
 			}
-			if (!_faulted && (_proxyChannelFactory != null))
+			if (_disposeChannelFactory && !_faulted && (_proxyChannelFactory != null))
 				((IDisposable)_proxyChannelFactory).Dispose();
 
 			_disposed = true;
