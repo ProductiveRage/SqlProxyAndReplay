@@ -23,6 +23,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 				_host.Faulted += SetFaulted;
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
+				_host.Description.Behaviors.Add(new ErrorWrappingBehavior());
 				_host.Open();
 			}
 			catch
