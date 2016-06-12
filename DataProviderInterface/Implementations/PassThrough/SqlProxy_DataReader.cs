@@ -69,13 +69,26 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations
 		public int GetOrdinal(DataReaderId readerId, string name) { return _readerStore.Get(readerId).GetOrdinal(name); }
 		public DataTable GetSchemaTable(DataReaderId readerId) { return _readerStore.Get(readerId).GetSchemaTable(); }
 		public string GetString(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetString(i); }
-		public object GetValue(DataReaderId readerId, int i) { return _readerStore.Get(readerId).GetValue(i); }
+		public object GetValue(DataReaderId readerId, int i)
+		{
+			// If the value is null in the database then we'll get DBNull.Value here, which the WCF host won't like (it will say, if you know
+			// how to trap the correct exception, something about using [KnownType] - but that can only be applied to types, not members). I'm
+			// not sure how to solve this in a perfect manner, so I'm going to replace DBNull.Value with null and then do the opposite on the
+			// client.
+			var value = _readerStore.Get(readerId).GetValue(i);
+			return (value == DBNull.Value) ? null : value;
+		}
 		public Tuple<int, object[]> GetValues(DataReaderId readerId, object[] values)
 		{
 			// When messages are passed over the write, the "buffer" reference on the client is serialised and then deserialised here, so
 			// it's not the same array. With an IDataReader, buffer WOULD be populated - to approximate this, we have to return a new array
 			// and the client has to write its contents over the original array's contents.
 			var lengthRead = _readerStore.Get(readerId).GetValues(values);
+			for (var i = 0; i < lengthRead; i++)
+			{
+				if (values[i] == DBNull.Value)
+					values[i] = null; // Replace DBNull.Value with null for the same reason as in GetValue
+			}
 			return Tuple.Create(lengthRead, values);
 		}
 	}

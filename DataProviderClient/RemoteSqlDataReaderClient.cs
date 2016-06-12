@@ -43,7 +43,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public bool NextResult() { ThrowIfDisposed(); return _reader.NextResult(_readerId); }
 		public void Close() { ThrowIfDisposed(); _reader.Close(_readerId); }
 
-		public object this[int i] { get { ThrowIfDisposed(); return _reader.GetValue(_readerId, i); } }
+		public object this[int i] { get { return GetValue(i); } }
 		public object this[string name] { get { ThrowIfDisposed(); return GetValue(GetOrdinal(name)); } }
 
 		public int Depth { get { ThrowIfDisposed(); return _reader.GetDepth(_readerId); } }
@@ -105,7 +105,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		public int GetOrdinal(string name) { ThrowIfDisposed(); return _reader.GetOrdinal(_readerId, name); }
 		public DataTable GetSchemaTable() { ThrowIfDisposed(); return _reader.GetSchemaTable(_readerId); }
 		public string GetString(int i) { ThrowIfDisposed(); return _reader.GetString(_readerId, i); }
-		public object GetValue(int i) { ThrowIfDisposed(); return _reader.GetValue(_readerId, i); }
+		public object GetValue(int i)
+		{
+			// I've had difficulty transmitting DBNull.Value down the wire for GetValue, so I've resorted to replacing DBNull.Value with null
+			// on the host and then having to replace it back again here (I don't believe that there should be any time that null is a valid
+			// value - if the database returned null for the column value then it will be returned DBNull.Value)
+			ThrowIfDisposed();
+			return _reader.GetValue(_readerId, i) ?? DBNull.Value;
+		}
 		public int GetValues(object[] values)
 		{
 			// When messages are passed over the wire, the data is serialised here then deserialised on the other end and then the response
@@ -116,6 +123,11 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			var numberOfObjectsPopulatedInArray = result.Item1;
 			var valuesRead = result.Item2;
 			Array.Copy(valuesRead, values, numberOfObjectsPopulatedInArray);
+			for (var i = 0; i < numberOfObjectsPopulatedInArray; i++)
+			{
+				if (values[i] == null)
+					values[i] = DBNull.Value; // Replace null with DBNull.Value for the same reason as in GetValue
+			}
 			return numberOfObjectsPopulatedInArray;
 		}
 
