@@ -115,11 +115,21 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 					throw new ArgumentException($"Transaction must be a {typeof(RemoteSqlTransactionClient)}");
 			}
 			var command = CreateCommand();
-			command.CommandText = commandText;
-			command.CommandType = commandType;
-			if (remoteSqlTransaction != null)
-				command.Transaction = remoteSqlTransaction;
-			return command;
+			try
+			{
+				command.CommandText = commandText;
+				command.CommandType = commandType;
+				if (remoteSqlTransaction != null)
+					command.Transaction = remoteSqlTransaction;
+				return command;
+			}
+			catch
+			{
+				// If the configuration above fails then this method won't return a command reference and so the caller won't be able
+				// to call Dispose on it - so we'll have to do it here, before allowing the exception to blow up
+				command.Dispose();
+				throw;
+			}
 		}
 
 		private void ThrowIfDisposed()
