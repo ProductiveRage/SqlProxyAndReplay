@@ -22,6 +22,8 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces
 		[OperationContract]
 		int GetFieldCount(DataReaderId readerId);
 		[OperationContract]
+		string[] GetFieldNames(DataReaderId readerId); // This isn't part of IDataReader but it allows the client to be less chatty in some scenarios
+		[OperationContract]
 		bool GetIsClosed(DataReaderId readerId);
 		[OperationContract]
 		int GetRecordsAffected(DataReaderId readerId);

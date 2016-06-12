@@ -18,6 +18,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementati
 
 		public int GetDepth(DataReaderId readerId) { return _readerStore.Get(readerId).Depth; }
 		public int GetFieldCount(DataReaderId readerId) { return _readerStore.Get(readerId).FieldCount; }
+		public string[] GetFieldNames(DataReaderId readerId)
+		{
+			var reader = _readerStore.Get(readerId);
+			var fieldNames = new string[reader.FieldCount];
+			for (var i = 0; i < fieldNames.Length; i++)
+				fieldNames[i] = reader.GetName(i);
+			return fieldNames;
+		}
 		public bool GetIsClosed(DataReaderId readerId) { return _readerStore.Get(readerId).IsClosed; }
 		public int GetRecordsAffected(DataReaderId readerId) { return _readerStore.Get(readerId).RecordsAffected; }
 

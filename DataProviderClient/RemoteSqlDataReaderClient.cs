@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
@@ -10,14 +11,19 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private readonly IRemoteSqlDataReader _reader;
 		private readonly DataReaderId _readerId;
 		private bool _disposed;
+		private Dictionary<string, int> _currentColumnNamesLookupIfKnown;
+		private object[] _valuesInCurrentRowIfKnown;
 		public RemoteSqlDataReaderClient(IRemoteSqlDataReader reader, DataReaderId readerId)
 		{
 			if (reader == null)
 				throw new ArgumentNullException(nameof(reader));
-			
+
 			_reader = reader;
 			_readerId = readerId;
 			_disposed = false;
+
+			_currentColumnNamesLookupIfKnown = null;
+			_valuesInCurrentRowIfKnown = null;
 		}
 		~RemoteSqlDataReaderClient()
 		{
@@ -34,17 +40,75 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				return;
 
 			if (disposing)
-				_reader.Dispose(_readerId); // Tell the service that the current Reader is finished with
+			{
+				// Dispose managed state if disposing is true
+				_currentColumnNamesLookupIfKnown = null;
+				_valuesInCurrentRowIfKnown = null;
+			}
+
+			// Free unmanaged resources - the remote Dispose call is the same as unmanaged resource because the garbage collector
+			// has not idea how to automatically tidy it up
+			_reader.Dispose(_readerId); // Tell the service that the current Reader is finished with
 
 			_disposed = true;
 		}
 
-		public bool Read() { ThrowIfDisposed(); return _reader.Read(_readerId); }
-		public bool NextResult() { ThrowIfDisposed(); return _reader.NextResult(_readerId); }
-		public void Close() { ThrowIfDisposed(); _reader.Close(_readerId); }
+		public bool Read()
+		{
+			ThrowIfDisposed();
+			var hasData = _reader.Read(_readerId);
+			if (hasData)
+			{
+				// If there is a row to read data for then get all of the values for it and, if we don't already have them, the names
+				// of the fields in the current result set. This will allow any requests for individual fields in the row (whether
+				// requested by field name or by index) to be returned from data in memory, rather than having to go back to the
+				// remote host every time (chatty WCF services can be slow). This has the disadvantage that every value from
+				// current row has been pulled in to memory and we might not need them all, but hopefully that's worth the
+				// trade-off (and, where performance is important, queries should only specify fields they want data for).
+				if (_currentColumnNamesLookupIfKnown == null)
+				{
+					var fieldNames = _reader.GetFieldNames(_readerId);
+					_currentColumnNamesLookupIfKnown = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+					for (var i = 0; i < fieldNames.Length; i++)
+						_currentColumnNamesLookupIfKnown[fieldNames[i]] = i;
+				}
+				var currentRowValuesReadResult = _reader.GetValues(_readerId, new object[_currentColumnNamesLookupIfKnown.Count]);
+				_valuesInCurrentRowIfKnown = currentRowValuesReadResult.Item2;
+			}
+			else
+				_valuesInCurrentRowIfKnown = null; // If there is no more data then there can be no values for the current row
+			return hasData;
+		}
+		public bool NextResult()
+		{
+			ThrowIfDisposed();
+			_currentColumnNamesLookupIfKnown = null; // Moving to a new resultset will invalidate any column names that we have..
+			_valuesInCurrentRowIfKnown = null; // .. and any current-row values
+			return _reader.NextResult(_readerId);
+		}
+		public void Close()
+		{
+			ThrowIfDisposed();
+			_currentColumnNamesLookupIfKnown = null;
+			_valuesInCurrentRowIfKnown = null;
+			_reader.Close(_readerId);
+		}
 
 		public object this[int i] { get { return GetValue(i); } }
-		public object this[string name] { get { ThrowIfDisposed(); return GetValue(GetOrdinal(name)); } }
+		public object this[string name]
+		{
+			get
+			{
+				ThrowIfDisposed();
+				if ((name != null) && (_currentColumnNamesLookupIfKnown != null) && (_valuesInCurrentRowIfKnown != null))
+				{
+					int fieldIndex;
+					if (_currentColumnNamesLookupIfKnown.TryGetValue(name, out fieldIndex))
+						return _valuesInCurrentRowIfKnown[fieldIndex];
+				}
+				return GetValue(GetOrdinal(name));
+			}
+		}
 
 		public int Depth { get { ThrowIfDisposed(); return _reader.GetDepth(_readerId); } }
 		public int FieldCount { get { ThrowIfDisposed(); return _reader.GetFieldCount(_readerId); } }
