@@ -48,7 +48,23 @@
     </Compile>
     <Compile Include="ErrorWrappingBehavior.cs" />
     <Compile Include="Host.cs" />
+    <Compile Include="ProxyImplementations\ConcurrentParameterToCommandLookup.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_Command.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_Connection.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_DataReader.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_Parameter.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_ParameterSet.cs" />
+    <Compile Include="ProxyImplementations\PassThrough\SqlProxy_Transaction.cs" />
+    <Compile Include="ProxyImplementations\Replay\QueryCriteria.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayer.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayerCommand.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayerConnection.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayerParameter.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayerParameterCollection.cs" />
+    <Compile Include="ProxyImplementations\Replay\SqlReplayerTransaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProxyImplementations\Store.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataProviderInterface\DataProviderInterface.csproj">

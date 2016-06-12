@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.Example
 {

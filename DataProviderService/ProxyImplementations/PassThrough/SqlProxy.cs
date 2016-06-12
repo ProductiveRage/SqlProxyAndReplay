@@ -2,10 +2,10 @@
 using System.Data;
 using System.ServiceModel;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.PassThrough
 {
 	// InstanceContextMode.Single is required in order to initialise a ServiceHost with a singleton reference, which is the easiest way to instantiate
 	// a service class without having to use a parameterless-constructor (since this class is designed to deal with all connections - we don't need one

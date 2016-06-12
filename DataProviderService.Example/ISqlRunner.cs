@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.Example
 {

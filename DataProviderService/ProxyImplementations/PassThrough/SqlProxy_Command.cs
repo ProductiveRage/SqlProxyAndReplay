@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.PassThrough
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{

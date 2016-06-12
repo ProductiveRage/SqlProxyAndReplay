@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay
 {
 	public sealed class SqlReplayerConnection : IDbConnection
 	{

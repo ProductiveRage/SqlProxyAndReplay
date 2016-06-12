@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations
 {
 	/// <summary>
 	/// This class is used to try to ensure that multi-threaded access to the command-to-parameters-created-by-that-command lookup is supported - primarily to

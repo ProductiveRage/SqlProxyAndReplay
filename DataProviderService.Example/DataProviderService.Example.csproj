@@ -57,6 +57,10 @@
       <Project>{7c0cd613-62a0-46d6-8912-8ef080da0e4b}</Project>
       <Name>DataProviderInterface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataProviderService\DataProviderService.csproj">
+      <Project>{3C08AD2A-F6F3-41F4-AD8E-D703E59B55DB}</Project>
+      <Name>DataProviderService</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

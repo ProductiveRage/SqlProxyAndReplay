@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderService.Example;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
 namespace ProductiveRage.SqlProxyAndReplay.Tests
 {

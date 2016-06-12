@@ -33,12 +33,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
@@ -49,30 +46,14 @@
     <Compile Include="IDs\TransactionId.cs" />
     <Compile Include="IDs\CommandId.cs" />
     <Compile Include="IDs\ConnectionId.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_ParameterSet.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_Parameter.cs" />
-    <Compile Include="Implementations\Replay\QueryCriteria.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayerTransaction.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayerParameter.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayerParameterCollection.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayerCommand.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayerConnection.cs" />
-    <Compile Include="Implementations\Replay\SqlReplayer.cs" />
     <Compile Include="Interfaces\IRemoteSqlParameter.cs" />
     <Compile Include="Interfaces\IRemoteSqlParameterSet.cs" />
     <Compile Include="InvalidIdException.cs" />
     <Compile Include="Interfaces\IRemoteSqlDataReader.cs" />
     <Compile Include="Interfaces\ISqlProxy.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_DataReader.cs" />
-    <Compile Include="ConcurrentParameterToCommandLookup.cs" />
-    <Compile Include="Store.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_Transaction.cs" />
     <Compile Include="Interfaces\IRemoteSqlTransaction.cs" />
     <Compile Include="Interfaces\IRemoteSqlCommand.cs" />
     <Compile Include="Interfaces\IRemoteSqlConnection.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_Command.cs" />
-    <Compile Include="Implementations\PassThrough\SqlProxy_Connection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

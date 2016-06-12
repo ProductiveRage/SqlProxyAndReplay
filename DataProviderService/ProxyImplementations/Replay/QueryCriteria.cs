@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay
 {
 	[Serializable]
 	public sealed class QueryCriteria

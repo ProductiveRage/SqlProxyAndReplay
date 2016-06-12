@@ -3,7 +3,7 @@ using System.Data;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.PassThrough
 {
 	public sealed partial class SqlProxy : ISqlProxy
 	{

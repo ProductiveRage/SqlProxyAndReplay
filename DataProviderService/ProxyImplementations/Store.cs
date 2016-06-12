@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using ProductiveRage.SqlProxyAndReplay.DataProviderInterface;
 
-namespace ProductiveRage.SqlProxyAndReplay.DataProviderInterface
+namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations
 {
 	internal sealed class Store<TId, TValue> where TValue : class
 	{

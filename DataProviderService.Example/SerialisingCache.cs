@@ -2,7 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderService.Example
 {

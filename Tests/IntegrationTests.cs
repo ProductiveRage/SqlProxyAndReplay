@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using ProductiveRage.SqlProxyAndReplay.DataProviderClient;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.PassThrough;
-using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Implementations.Replay;
 using ProductiveRage.SqlProxyAndReplay.DataProviderService.Example;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.PassThrough;
+using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.Replay;
 using Xunit;
 
 namespace ProductiveRage.SqlProxyAndReplay.Tests

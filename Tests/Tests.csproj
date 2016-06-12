@@ -105,6 +105,10 @@
       <Project>{0d045e5e-83e2-47ed-8a33-8888bf598d36}</Project>
       <Name>DataProviderService.Example</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataProviderService\DataProviderService.csproj">
+      <Project>{3C08AD2A-F6F3-41F4-AD8E-D703E59B55DB}</Project>
+      <Name>DataProviderService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
