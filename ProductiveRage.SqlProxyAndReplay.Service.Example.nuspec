@@ -3,7 +3,7 @@
   <metadata>
     <id>ProductiveRage.SqlProxyAndReplay.Service.Example</id>
     <title>ProductiveRage.SqlProxyAndReplay.Service.Example</title>
-    <version>1.1.0</version>
+    <version>1.3.0</version>
     <authors>ProductiveRage</authors>
     <owners>ProductiveRage</owners>
     <licenseUrl>https://github.com/ProductiveRage/SqlProxyAndReplay/blob/master/LICENSE</licenseUrl>
@@ -14,8 +14,8 @@
     <copyright>Copyright 2016 ProductiveRage</copyright>
     <tags>C# SQL WCF</tags>
     <dependencies>
-      <dependency id="ProductiveRage.SqlProxyAndReplay.Interface" version="1.1.0" />
-      <dependency id="ProductiveRage.SqlProxyAndReplay.Service" version="1.1.0" />
+      <dependency id="ProductiveRage.SqlProxyAndReplay.Interface" version="1.3.0" />
+      <dependency id="ProductiveRage.SqlProxyAndReplay.Service" version="1.3.0" />
     </dependencies>
   </metadata>
   <files>
