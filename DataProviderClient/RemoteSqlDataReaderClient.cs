@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlTypes;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.IDs;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -110,14 +111,29 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		}
 
 		public int Depth { get { ThrowIfDisposed(); return _reader.GetDepth(_readerId); } }
-		public int FieldCount { get { ThrowIfDisposed(); return _reader.GetFieldCount(_readerId); } }
+		public int FieldCount
+		{
+			get
+			{
+				ThrowIfDisposed();
+				if (_valuesInCurrentRowIfKnown != null)
+					return _valuesInCurrentRowIfKnown.Length;
+				return _reader.GetFieldCount(_readerId);
+			}
+		}
 		public bool IsClosed { get { ThrowIfDisposed(); return _reader.GetIsClosed(_readerId); } }
 		public int RecordsAffected { get { ThrowIfDisposed(); return _reader.GetRecordsAffected(_readerId); } }
 
-		public bool IsDBNull(int i) { ThrowIfDisposed(); return _reader.IsDBNull(_readerId, i); }
+		public bool IsDBNull(int i)
+		{
+			ThrowIfDisposed();
+			if ((_valuesInCurrentRowIfKnown != null) && (i >= 0) && (i < _valuesInCurrentRowIfKnown.Length))
+				return _valuesInCurrentRowIfKnown[i] == null;
+			return _reader.IsDBNull(_readerId, i);
+		}
 
-		public bool GetBoolean(int i) { ThrowIfDisposed(); return _reader.GetBoolean(_readerId, i); }
-		public byte GetByte(int i) { ThrowIfDisposed(); return _reader.GetByte(_readerId, i); }
+		public bool GetBoolean(int i) { return GetAs<bool>(i, _reader.GetBoolean); }
+		public byte GetByte(int i) { return GetAs<byte>(i, _reader.GetByte); }
 		public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
 		{
 			// When messages are passed over the wire, the data is serialised here then deserialised on the other end and then the response
@@ -130,7 +146,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			Array.Copy(bytesRead, buffer, numberOfBytesRead);
 			return numberOfBytesRead;
 		}
-		public char GetChar(int i) { ThrowIfDisposed(); return _reader.GetChar(_readerId, i); }
+		public char GetChar(int i) { return GetAs<char>(i, _reader.GetChar); }
 		public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
 		{
 			// When messages are passed over the wire, the data is serialised here then deserialised on the other end and then the response
@@ -149,9 +165,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			return new RemoteSqlDataReaderClient(_reader, _reader.GetData(_readerId, i));
 		}
 		public string GetDataTypeName(int i) { ThrowIfDisposed(); return _reader.GetDataTypeName(_readerId, i); }
-		public DateTime GetDateTime(int i) { ThrowIfDisposed(); return _reader.GetDateTime(_readerId, i); }
-		public decimal GetDecimal(int i) { ThrowIfDisposed(); return _reader.GetDecimal(_readerId, i); }
-		public double GetDouble(int i) { ThrowIfDisposed(); return _reader.GetDouble(_readerId, i); }
+		public DateTime GetDateTime(int i) { return GetAs<DateTime>(i, _reader.GetDateTime); }
+		public decimal GetDecimal(int i) { return GetAs<decimal>(i, _reader.GetDecimal); }
+		public double GetDouble(int i) { return GetAs<double>(i, _reader.GetDouble); }
 		public Type GetFieldType(int i)
 		{
 			// "Type" is not serialisable, so send its name down the wire and translate back into a Type instance on the other end
@@ -159,37 +175,83 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 			var typeFullName = _reader.GetFieldType(_readerId, i);
 			return Type.GetType(typeFullName, throwOnError: true);
 		}
-		public float GetFloat(int i) { ThrowIfDisposed(); return _reader.GetFloat(_readerId, i); }
-		public Guid GetGuid(int i) { ThrowIfDisposed(); return _reader.GetGuid(_readerId, i); }
-		public short GetInt16(int i) { ThrowIfDisposed(); return _reader.GetInt16(_readerId, i); }
-		public int GetInt32(int i) { ThrowIfDisposed(); return _reader.GetInt32(_readerId, i); }
-		public long GetInt64(int i) { ThrowIfDisposed(); return _reader.GetInt64(_readerId, i); }
-		public string GetName(int i) { ThrowIfDisposed(); return _reader.GetName(_readerId, i); }
-		public int GetOrdinal(string name) { ThrowIfDisposed(); return _reader.GetOrdinal(_readerId, name); }
+		public float GetFloat(int i) { return GetAs<float>(i, _reader.GetFloat); }
+		public Guid GetGuid(int i) { return GetAs<Guid>(i, _reader.GetGuid); }
+		public short GetInt16(int i) { return GetAs<short>(i, _reader.GetInt16); }
+		public int GetInt32(int i) { return GetAs<int>(i, _reader.GetInt32); }
+		public long GetInt64(int i) { return GetAs<long>(i, _reader.GetInt64); }
+		public string GetName(int i)
+		{
+			ThrowIfDisposed();
+			if (_currentColumnNamesLookupIfKnown != null)
+			{
+				foreach (var nameAndIndex in _currentColumnNamesLookupIfKnown)
+				{
+					if (nameAndIndex.Value == i)
+						return nameAndIndex.Key;
+				}
+			}
+			return _reader.GetName(_readerId, i);
+		}
+		public int GetOrdinal(string name)
+		{
+			ThrowIfDisposed();
+			int fieldIndex;
+			if ((_currentColumnNamesLookupIfKnown != null) && (name != null) && _currentColumnNamesLookupIfKnown.TryGetValue(name, out fieldIndex))
+				return fieldIndex;
+			return _reader.GetOrdinal(_readerId, name);
+		}
 		public DataTable GetSchemaTable() { ThrowIfDisposed(); return _reader.GetSchemaTable(_readerId); }
-		public string GetString(int i) { ThrowIfDisposed(); return _reader.GetString(_readerId, i); }
+		public string GetString(int i) { return GetAs<string>(i, _reader.GetString); }
 		public object GetValue(int i)
 		{
 			// I've had difficulty transmitting DBNull.Value down the wire for GetValue, so I've resorted to replacing DBNull.Value with null
 			// on the host and then having to replace it back again here (I don't believe that there should be any time that null is a valid
 			// value - if the database returned null for the column value then it will be returned DBNull.Value)
-			ThrowIfDisposed();
-			return _reader.GetValue(_readerId, i) ?? DBNull.Value;
+			if ((_valuesInCurrentRowIfKnown != null) && (i >= 0) && (i < _valuesInCurrentRowIfKnown.Length))
+				return _valuesInCurrentRowIfKnown[i] ?? DBNull.Value;
+			return GetAs<object>(i, _reader.GetValue) ?? DBNull.Value;
 		}
 		public int GetValues(object[] values)
 		{
 			if (values == null)
 				throw new ArgumentNullException(nameof(values));
 
+			ThrowIfDisposed();
 			if (values.Length == 0)
 				return 0;
 
 			// We couldn't pass the values array directly to the host to be populated because it would be serialised in order to pass it over
-			//the wire, so any manipulations (such as pushing data into it) would not occur on the array reference that we have here. Instead,
+			// the wire, so any manipulations (such as pushing data into it) would not occur on the array reference that we have here. Instead,
 			// we get a new array from the host and then copy the values back on top of the input array, ensuring that it gets populated.
 			var valuesRead = _reader.GetValues(_readerId, maximumNumberOfValuesToRead: values.Length);
-			valuesRead.CopyTo(values, index: 0);
+			for (var i = 0; i < valuesRead.Length; i++)
+				values[i] = valuesRead[i] ?? DBNull.Value; // Replace null with DBNull.Value for the same reason as in GetValue
 			return valuesRead.Length;
+		}
+
+		/// <summary>
+		/// If there is data for the row in memory then try to return the requested value from that data. The data should be in memory if a row
+		/// has been read. If there isn't any data or if there is another error condition (such as an invalid field index or an inconsistent type)
+		/// then make the remote call, so that the exception that is returned is consistent with the real exception that would happen (the only
+		/// error case that IS handled here is the return of DBNull.Value, which is not acceptable here - this method should be used to make it
+		/// easier to implement GetString, GetInt32, etc.. and they will never return null / DBNull.Value).
+		/// </summary>
+		private T GetAs<T>(int i, Func<DataReaderId, int, T> fallback)
+		{
+			if (fallback == null)
+				throw new ArgumentNullException(nameof(fallback));
+
+			ThrowIfDisposed();
+			if ((_valuesInCurrentRowIfKnown != null) && (i >= 0) && (i < _valuesInCurrentRowIfKnown.Length))
+			{
+				var value = _valuesInCurrentRowIfKnown[i];
+				if (value == null)
+					throw new SqlNullValueException();
+				if (value is T)
+					return (T)value;
+			}
+			return fallback(_readerId, i);
 		}
 
 		private void ThrowIfDisposed()
