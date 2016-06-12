@@ -72,8 +72,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 					for (var i = 0; i < fieldNames.Length; i++)
 						_currentColumnNamesLookupIfKnown[fieldNames[i]] = i;
 				}
-				var currentRowValuesReadResult = _reader.GetValues(_readerId, new object[_currentColumnNamesLookupIfKnown.Count]);
-				_valuesInCurrentRowIfKnown = currentRowValuesReadResult.Item2;
+				_valuesInCurrentRowIfKnown = _reader.GetValues(_readerId, _currentColumnNamesLookupIfKnown.Count);
 			}
 			else
 				_valuesInCurrentRowIfKnown = null; // If there is no more data then there can be no values for the current row
@@ -179,20 +178,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		}
 		public int GetValues(object[] values)
 		{
-			// When messages are passed over the wire, the data is serialised here then deserialised on the other end and then the response
-			// is serialised and returned and deserialised here. That means that the "values" reference that is populated on the other end
-			// is not the same as the reference here - so we need to overwrite the input array with the data from the response message.
-			ThrowIfDisposed();
-			var result = _reader.GetValues(_readerId, values);
-			var numberOfObjectsPopulatedInArray = result.Item1;
-			var valuesRead = result.Item2;
-			Array.Copy(valuesRead, values, numberOfObjectsPopulatedInArray);
-			for (var i = 0; i < numberOfObjectsPopulatedInArray; i++)
-			{
-				if (values[i] == null)
-					values[i] = DBNull.Value; // Replace null with DBNull.Value for the same reason as in GetValue
-			}
-			return numberOfObjectsPopulatedInArray;
+			if (values == null)
+				throw new ArgumentNullException(nameof(values));
+
+			if (values.Length == 0)
+				return 0;
+
+			// We couldn't pass the values array directly to the host to be populated because it would be serialised in order to pass it over
+			//the wire, so any manipulations (such as pushing data into it) would not occur on the array reference that we have here. Instead,
+			// we get a new array from the host and then copy the values back on top of the input array, ensuring that it gets populated.
+			var valuesRead = _reader.GetValues(_readerId, maximumNumberOfValuesToRead: values.Length);
+			valuesRead.CopyTo(values, index: 0);
+			return valuesRead.Length;
 		}
 
 		private void ThrowIfDisposed()
