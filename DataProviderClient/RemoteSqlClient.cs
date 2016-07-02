@@ -13,7 +13,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private bool _faulted, _disposed;
 		private readonly bool _disposeChannelFactory;
 		public RemoteSqlClient(string connectionString, Uri endPoint)
-			: this(connectionString, new ChannelFactory<ISqlProxy>(new NetTcpBinding(), new EndpointAddress(endPoint)), disposeChannelFactory: true) { }
+			: this(connectionString, new ChannelFactory<ISqlProxy>(GetDefaultBinding(), new EndpointAddress(endPoint)), disposeChannelFactory: true) { }
 		public RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory)
 			: this(connectionString, proxyChannelFactory, disposeChannelFactory: false) { }
 		private RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory, bool disposeChannelFactory)
@@ -77,6 +77,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				((IDisposable)_proxyChannelFactory).Dispose();
 
 			_disposed = true;
+		}
+
+		private static NetTcpBinding GetDefaultBinding()
+		{
+			return new NetTcpBinding
+			{
+				MaxBufferPoolSize = 2147483647,
+				MaxReceivedMessageSize = 2147483647,
+				MaxBufferSize = 2147483647
+			};
 		}
 
 		private void SetFaulted(object sender, EventArgs e)
