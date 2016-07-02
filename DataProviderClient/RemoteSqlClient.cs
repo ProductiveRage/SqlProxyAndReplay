@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
@@ -24,6 +25,28 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				throw new ArgumentNullException(nameof(connectionString));
 			if (proxyChannelFactory == null)
 				throw new ArgumentNullException(nameof(proxyChannelFactory));
+
+			try
+			{
+				// When the proxy records the requests and responses in cache, it records the connection string so that it can compare it to the connection string of
+				// future requests, for cases where the requests should be fulfilled by the cached data - if the connection strings are not consistent then the cache
+				// data is not considered to be applicable. However, when SQL Server Authentication is used (when a username and password are part of the connection
+				// string), the ConnectionString property of a SqlConnection will not report the password that was part of the connection string used in configuring
+				// the connection - this results in a discrepancy, meaning that cached entries are never matched. The workaround is to enable the PersistSecurityInfo
+				// option in the connection string for cases where Windows Authentication is not used, this prevents the password from being hidden when the Connection
+				// String property is retrieved from a SqlConnection. Since this service should only be used internally, in particular test environments, this minor
+				// relaxing of security should not be a concern (and it will be a non-issue if Windows Authentication is used, which is the recommended approach).
+				var connectionStringDetails = new SqlConnectionStringBuilder(connectionString);
+				if (!connectionStringDetails.IntegratedSecurity && !connectionStringDetails.PersistSecurityInfo)
+				{
+					connectionStringDetails.PersistSecurityInfo = true;
+					connectionString = connectionStringDetails.ToString();
+				}
+			}
+			catch(Exception e)
+			{
+				throw new ArgumentException("Invalid connection string", "connectionString", e);
+			}
 
 			try
 			{
