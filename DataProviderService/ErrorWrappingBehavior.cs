@@ -13,6 +13,12 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 	/// </summary>
 	internal sealed class ErrorWrappingBehavior : Attribute, IServiceBehavior // Courtesy of http://stackoverflow.com/a/14910873
 	{
+		private readonly Action<Exception> _optionalErrorLogger;
+		public ErrorWrappingBehavior(Action<Exception> optionalErrorLogger = null)
+		{
+			_optionalErrorLogger = optionalErrorLogger;
+		}
+
 		public void Validate(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase) { }
 
 		public void AddBindingParameters(
@@ -28,12 +34,18 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 				var channelDispatcher = chanDispBase as ChannelDispatcher;
 				if (channelDispatcher == null)
 					continue;
-				channelDispatcher.ErrorHandlers.Add(new SvcErrorHandler());
+				channelDispatcher.ErrorHandlers.Add(new SvcErrorHandler(_optionalErrorLogger));
 			}
 		}
 
 		private sealed class SvcErrorHandler : IErrorHandler
 		{
+			private readonly Action<Exception> _optionalErrorLogger;
+			public SvcErrorHandler(Action<Exception> optionalErrorLogger)
+			{
+				_optionalErrorLogger = optionalErrorLogger;
+			}
+
 			public bool HandleError(Exception error)
 			{
 				return true;
@@ -41,6 +53,15 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 
 			public void ProvideFault(Exception error, MessageVersion version, ref Message msg)
 			{
+				if (_optionalErrorLogger != null)
+				{
+					try
+					{
+						_optionalErrorLogger(error);
+					}
+					catch { } // We're already in an error handler, there's no value to allowing an error that occurred while trying to log the error to be thrown
+				}
+
 				if (error is FaultException)
 					return;
 

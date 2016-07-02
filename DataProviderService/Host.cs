@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
@@ -7,23 +8,27 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 {
 	public sealed class Host : IDisposable
 	{
-		private ServiceHost _host;
+		private readonly ServiceHost _host;
 		private bool _faulted, _disposed;
-		public Host(ISqlProxy singleInstanceContextModeProxy, Uri endPoint)
+		public Host(ISqlProxy singleInstanceContextModeProxy, Uri endPoint, Action<Exception> optionalErrorLogger = null)
+			: this(singleInstanceContextModeProxy, GetDefaultBinding(), endPoint, optionalErrorLogger) { }
+		public Host(ISqlProxy singleInstanceContextModeProxy, Binding binding, Uri endPoint, Action<Exception> optionalErrorLogger = null)
 		{
 			if (singleInstanceContextModeProxy == null)
 				throw new ArgumentNullException(nameof(singleInstanceContextModeProxy));
+			if (binding == null)
+				throw new ArgumentNullException(nameof(binding));
 			if (endPoint == null)
 				throw new ArgumentNullException(nameof(endPoint));
 
 			try
 			{
 				_host = new ServiceHost(singleInstanceContextModeProxy);
-				_host.AddServiceEndpoint(typeof(ISqlProxy), new NetTcpBinding(), endPoint);
+				_host.AddServiceEndpoint(typeof(ISqlProxy), binding, endPoint);
 				_host.Faulted += SetFaulted;
 				_host.Description.Behaviors.Remove(typeof(ServiceDebugBehavior));
 				_host.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
-				_host.Description.Behaviors.Add(new ErrorWrappingBehavior());
+				_host.Description.Behaviors.Add(new ErrorWrappingBehavior(optionalErrorLogger));
 				_host.Open();
 			}
 			catch
@@ -62,6 +67,16 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderService
 			}
 
 			_disposed = true;
+		}
+
+		private static NetTcpBinding GetDefaultBinding()
+		{
+			return new NetTcpBinding
+			{
+				MaxBufferPoolSize = 2147483647,
+				MaxReceivedMessageSize = 2147483647,
+				MaxBufferSize = 2147483647
+			};
 		}
 
 		private void SetFaulted(object sender, EventArgs e)
