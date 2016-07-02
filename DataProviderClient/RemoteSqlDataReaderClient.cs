@@ -71,7 +71,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 					var fieldNames = _reader.GetFieldNames(_readerId);
 					_currentColumnNamesLookupIfKnown = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 					for (var i = 0; i < fieldNames.Length; i++)
-						_currentColumnNamesLookupIfKnown[fieldNames[i]] = i;
+					{
+						if (!_currentColumnNamesLookupIfKnown.ContainsKey(fieldNames[i]))
+							_currentColumnNamesLookupIfKnown.Add(fieldNames[i], i);
+					}
 				}
 				_valuesInCurrentRowIfKnown = _reader.GetValues(_readerId, _currentColumnNamesLookupIfKnown.Count);
 			}
@@ -104,7 +107,7 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				{
 					int fieldIndex;
 					if (_currentColumnNamesLookupIfKnown.TryGetValue(name, out fieldIndex))
-						return _valuesInCurrentRowIfKnown[fieldIndex];
+						return _valuesInCurrentRowIfKnown[fieldIndex] ?? DBNull.Value; // Replace null with DBNull.Value for the same reason as in GetValue
 				}
 				return GetValue(GetOrdinal(name));
 			}
