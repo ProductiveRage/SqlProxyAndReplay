@@ -76,7 +76,13 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 							_currentColumnNamesLookupIfKnown.Add(fieldNames[i], i);
 					}
 				}
-				_valuesInCurrentRowIfKnown = _reader.GetValues(_readerId, _currentColumnNamesLookupIfKnown.Count);
+
+				// If any field names are repeated in the query (which can happen if the the same name is explicitly listed multiple times
+				// or there is a SELECT * and tables are joined that have columns with the same name) then the number of entries in the
+				// _currentColumnNamesLookupIfKnown dictionary will be fewer than the actual number of fields in the recordset. So,
+				// pass int.MaxValue as the maximumNumberOfValuesToRead argument in the GetValues call in order to get as many
+				// values are there are fields.
+				_valuesInCurrentRowIfKnown = _reader.GetValues(_readerId, int.MaxValue);
 			}
 			else
 				_valuesInCurrentRowIfKnown = null; // If there is no more data then there can be no values for the current row

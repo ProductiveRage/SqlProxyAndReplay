@@ -121,6 +121,40 @@ namespace ProductiveRage.SqlProxyAndReplay.Tests
 			Assert.Equal(expectedValues, namesFromReplayedCalls);
 		}
 
+		[Fact]
+		public static void DoNotBeConfusedByRepeatedFieldNames()
+		{
+			var databaseInitialisation = @"
+				CREATE TABLE test(id INTEGER, name TEXT);
+				INSERT INTO test VALUES (1, 'Bob');
+				INSERT INTO test VALUES (2, 'Jack');
+			";
+
+			int? fieldCount = null;
+			using (var reusableConnection = CreateReusableConnection(databaseInitialisation))
+			{
+				var proxy = new SqlProxy(() => reusableConnection, queryRecorder: criteria => { }, scalarQueryRecorder: criteria => { }, nonQueryRowCountRecorder: criteria => { });
+				using (var proxyConnection = new RemoteSqlConnectionClient(proxy, proxy.GetNewConnectionId()))
+				{
+					using (var command = proxyConnection.CreateCommand("SELECT id, id, name FROM Test"))
+					{
+						proxyConnection.Open();
+						using (var reader = command.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								fieldCount = reader.FieldCount;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			Assert.NotNull(fieldCount);
+			Assert.Equal(3, fieldCount.Value);
+		}
+
 		private static StaysOpenSqliteConnection CreateReusableConnection(string databaseInitialisationSql)
 		{
 			if (databaseInitialisationSql == null)
