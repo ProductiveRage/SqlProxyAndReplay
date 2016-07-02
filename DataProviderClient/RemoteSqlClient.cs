@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using ProductiveRage.SqlProxyAndReplay.DataProviderInterface.Interfaces;
 
 namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
@@ -12,8 +13,9 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 		private RemoteSqlConnectionClient _connection;
 		private bool _faulted, _disposed;
 		private readonly bool _disposeChannelFactory;
-		public RemoteSqlClient(string connectionString, Uri endPoint)
-			: this(connectionString, new ChannelFactory<ISqlProxy>(GetDefaultBinding(), new EndpointAddress(endPoint)), disposeChannelFactory: true) { }
+		public RemoteSqlClient(string connectionString, Uri endPoint) : this(connectionString, endPoint, GetDefaultBinding()) { }
+		public RemoteSqlClient(string connectionString, Uri endPoint, Binding binding)
+			: this(connectionString, new ChannelFactory<ISqlProxy>(binding, new EndpointAddress(endPoint, GetDefaultIdentity())), disposeChannelFactory: true) { }
 		public RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory)
 			: this(connectionString, proxyChannelFactory, disposeChannelFactory: false) { }
 		private RemoteSqlClient(string connectionString, ChannelFactory<ISqlProxy> proxyChannelFactory, bool disposeChannelFactory)
@@ -87,6 +89,14 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 				MaxReceivedMessageSize = 2147483647,
 				MaxBufferSize = 2147483647
 			};
+		}
+
+		private static EndpointIdentity GetDefaultIdentity()
+		{
+			// See http://stackoverflow.com/a/19849782/3813189 or http://inaspiralarray.blogspot.co.uk/2013/05/wcf-security-issue-target-principal.html
+			// "if a dummy SPN is used, Kerberos authentication will fail, however in this case authentication will fall back to NTLM and succeed."
+			// This prevents the error "A call to SSPI failed, see inner exception." (inner: "The target principal name is incorrect")/
+			return EndpointIdentity.CreateSpnIdentity("");
 		}
 
 		private void SetFaulted(object sender, EventArgs e)
