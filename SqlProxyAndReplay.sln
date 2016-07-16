@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{5A2036F3-97BB-4C21-AE78-DEE97998C2F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester (set me as Startup Project)", "Tester\Tester (set me as Startup Project).csproj", "{5A2036F3-97BB-4C21-AE78-DEE97998C2F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderService", "DataProviderService\DataProviderService.csproj", "{3C08AD2A-F6F3-41F4-AD8E-D703E59B55DB}"
 EndProject

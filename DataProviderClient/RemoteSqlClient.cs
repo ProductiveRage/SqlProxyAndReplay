@@ -43,9 +43,10 @@ namespace ProductiveRage.SqlProxyAndReplay.DataProviderClient
 					connectionString = connectionStringDetails.ToString();
 				}
 			}
-			catch(Exception e)
+			catch
 			{
-				throw new ArgumentException("Invalid connection string", "connectionString", e);
+				// There is nothing that REQUIRES us to be talking a SQL Server instance (it could be a Sqlite database that we'll be talking to, for example) - so,
+				// if we couldn't parse the connection using the SqlConnectionStringBuilder class then don't worry about it
 			}
 
 			try

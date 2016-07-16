@@ -6,6 +6,10 @@ using ProductiveRage.SqlProxyAndReplay.DataProviderService.ProxyImplementations.
 
 namespace ProductiveRage.SqlProxyAndReplay.Tests
 {
+	/// <summary>
+	/// This needs to use a StaysOpenSqliteConnection for unit (well.. more like integration) tests since we can't close the connection to the in-memory databases
+	/// used for testing (since they are lost into the ether if we let them go - see notes in the StaysOpenSqliteConnection for more information)
+	/// </summary>
 	public sealed class SqliteRunner : ISqlRunner
 	{
 		private readonly StaysOpenSqliteConnection _reusableConnection;
